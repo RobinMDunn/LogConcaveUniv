@@ -3,9 +3,11 @@
 # Use two-component normal location model.
 # Note: To load LogConcDEAD package, make sure XQuartz is running.
 
+# Read in library
+library(LogConcaveUniv)
+
 # Read in arguments for file with all parameters and
 # line number for parameters for current simulation.
-
 parameter_file <- "sim_params/fig01_perm_test_params.csv"
 line_number <- 1
 
@@ -55,11 +57,14 @@ results <- data.table::data.table(n_obs = n_obs, d = d, mu_norm = mu_norm,
 
 # Set up progress bar
 pb <- progress::progress_bar$new(format = "sim :current / :total [:bar] :eta",
-                                 total = nrow(results) * B,
+                                 total = nrow(results),
                                  clear = T, show_after = 0)
 
 # Run simulations
 for(row in 1:nrow(results)) {
+
+  # Update progress bar
+  pb$tick()
 
   # Generate sample from two-component normal location model
   true_sample <- matrix(NA, nrow = n_obs, ncol = d)
@@ -73,82 +78,10 @@ for(row in 1:nrow(results)) {
     }
   }
 
-  # Get MLE log-concave density
-  dens_est <- LogConcDEAD::mlelcd(x = true_sample)
+  # Run permutation test to determine whether to reject H_0
+  reject_null <- permutation_test(data = true_sample, B = B, alpha = alpha)
 
-  # Sample n_obs from MLE log-concave density
-  dens_sample <- LogConcDEAD::rlcd(n = n_obs, lcd = dens_est)
-
-  # Combine all observations
-  all_obs <- rbind(true_sample, dens_sample)
-
-  # Initialize original sample test statistic
-  orig_ts <- 0
-
-  # Compute original sample test statistic
-  for(i in 1:nrow(all_obs)) {
-
-    # Get distance between all observations in true_sample and obs i
-    P_n <- apply(matrix(true_sample, ncol = d), MARGIN = 1,
-                 FUN = function(x) sqrt(sum((all_obs[i, ] - x)^2)))
-
-    # Get distance between all observations in dens_sample and obs i
-    P_n_star <- apply(matrix(dens_sample, ncol = d), MARGIN = 1,
-                      FUN = function(x) sqrt(sum((all_obs[i, ] - x)^2)))
-
-    # Get proportion of observations in sphere w/ each radius of size dist.
-    # Save test stat that maximizes absolute difference.
-    for(dist in unique(c(P_n, P_n_star))) {
-      ts <- abs(mean(P_n <= dist) - mean(P_n_star <= dist))
-      if(ts > orig_ts) {
-        orig_ts <- ts
-      }
-    }
-
-  }
-
-  # Initialize permutation test statistics
-  shuffle_ts <- rep(0, B)
-
-  # Run permutation test
-  for(b in 1:B) {
-
-    # Update progress bar
-    pb$tick()
-
-    # Shuffle order of observations
-    index_shuffle <- sample(1:nrow(all_obs), size = nrow(all_obs),
-                            replace = FALSE)
-
-    # Compute test statistic for permutation
-    for(i in 1:nrow(all_obs)) {
-
-      # Get distance between all observations in first sample and obs i
-      P_n <- apply(matrix(all_obs[index_shuffle[1:n_obs], ], ncol = d),
-                   MARGIN = 1,
-                   FUN = function(x) sqrt(sum((all_obs[i, ] - x)^2)))
-
-      # Get distance between all observations in second sample and obs i
-      P_n_star <- apply(matrix(all_obs[index_shuffle[(n_obs+1):(2*n_obs)], ],
-                               ncol = d),
-                        MARGIN = 1,
-                        FUN = function(x) sqrt(sum((all_obs[i, ] - x)^2)))
-
-      # Get proportion of observations in sphere w/ each radius of size dist.
-      # Save test stat that maximizes absolute difference.
-      for(dist in unique(c(P_n, P_n_star))) {
-        ts <- abs(mean(P_n <= dist) - mean(P_n_star <= dist))
-        if(ts > shuffle_ts[b]) {
-          shuffle_ts[b] <- ts
-        }
-      }
-
-    }
-
-  }
-
-  # Reject H_0 if orig_ts > (B+1)*(1-alpha) quantile of shuffle_ts
-  results[row, reject := as.numeric(orig_ts > sort(shuffle_ts)[ceiling((B+1)*(1-alpha))])]
+  results[row, reject := reject_null]
 
 }
 

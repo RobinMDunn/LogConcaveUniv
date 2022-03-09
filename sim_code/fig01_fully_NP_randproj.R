@@ -7,9 +7,11 @@
 # Evaluate at all values in D_0.
 # Repeat at multiple projections. Reject if mean test stat >= 1/alpha.
 
+# Read in library
+library(LogConcaveUniv)
+
 # Read in arguments for file with all parameters and
 # line number for parameters for current simulation.
-
 parameter_file <- "sim_params/fig01_fully_NP_randproj_params.csv"
 line_number <- 1
 
@@ -89,74 +91,13 @@ for(row in 1:nrow(results)) {
     }
   }
 
-  # Matrix of subsampled test statistics
-  ts_mat <- matrix(NA, nrow = n_proj, ncol = B)
+  # Run fully nonparametric random projection test to determine
+  # whether to reject H_0
+  test_out <- fully_NP_randproj(data = true_sample, B = B, n_proj = n_proj,
+                                alpha = alpha, compute_ts = compute_ts)
 
-  # Repeatedly get test statistic on different projections
-  for(proj in 1:n_proj) {
-
-    # Get random vector for projection
-    random_vector <- rnorm(n = d, mean = 0, sd = 1)
-
-    random_vector <- random_vector / sqrt(sum(random_vector^2))
-
-    for(b in 1:B) {
-
-      # Split Y into Y_0 and Y_1
-      Y_0_indices <- sample(1:n_obs, size = n_obs/2)
-
-      Y_1_indices <- setdiff(1:n_obs, Y_0_indices)
-
-      Y_0 <- matrix(true_sample[Y_0_indices, ], ncol = d)
-
-      Y_1 <- matrix(true_sample[Y_1_indices, ], ncol = d)
-
-      # Get projections of Y_0 and Y_1
-      Y_0 <- as.numeric(Y_0 %*% random_vector)
-
-      Y_1 <- as.numeric(Y_1 %*% random_vector)
-
-      # Get KDE estimate on D_1.
-      kde_D1 <- ks::kde(x = Y_1, eval.points = Y_0,
-                        h = ks::hpi(x = Y_1), binned = FALSE)
-
-      # Evaluate KDE on D_0
-      eval_kde_D0 <- kde_D1$estimate
-
-      # Get log-concave MLE on D_0
-      log_concave_D0 <- logcondens::logConDens(x = Y_0, smoothed = F)
-
-      # Evaluate log-concave MLE on D_0
-      eval_log_concave_D0 <- logcondens::evaluateLogConDens(
-        xs = Y_0, res = log_concave_D0, which = 2)[, 3]
-
-      # Store test stat for the projection
-      ts_mat[proj, b] <-
-        exp(sum(log(eval_kde_D0)) - sum(log(eval_log_concave_D0)))
-
-      # Stop if test stat is NA
-      stopifnot(!is.na(ts_mat[proj, b]))
-
-    }
-
-    # Stop early if likelihood ratio already guarantees rejection
-    if(compute_ts == 0 & sum(ts_mat, na.rm = T) >= n_proj * B / alpha) {
-      ts_mat[is.na(ts_mat)] <- 0
-      break
-    }
-
-  }
-
-  # Get average subsampled test stat across projections
-  avg_test_stat <- mean(ts_mat)
-
-  # Store average test stat
-  if(compute_ts == 1) {
-    results[row, avg_ts := avg_test_stat]
-  }
-
-  # Reject H_0 if avg_ts >= 1/alpha
-  results[row, reject := as.numeric(avg_test_stat >= 1/alpha)]
+  results[row, avg_ts := test_out$test_stat]
+  results[row, reject := test_out$reject_null]
 
 }
 
