@@ -79,7 +79,8 @@ for(row in 1:nrow(results)) {
   }
 
   # Run permutation test to determine whether to reject H_0
-  reject_null <- permutation_test(data = true_sample, B = B, alpha = alpha)
+  reject_null <- LogConcaveUniv::permutation_test(data = true_sample, B = B,
+                                                  alpha = alpha)$reject_null
 
   results[row, reject := reject_null]
 
