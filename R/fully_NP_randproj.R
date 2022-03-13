@@ -10,6 +10,10 @@
 #' @export
 fully_NP_randproj <- function(data, B, n_proj, alpha, compute_ts) {
 
+  # Extract number of observations and dimension
+  n_obs <- nrow(data)
+  d <- ncol(data)
+
   # Matrix of subsampled test statistics
   ts_mat <- matrix(NA, nrow = n_proj, ncol = B)
 
@@ -28,9 +32,9 @@ fully_NP_randproj <- function(data, B, n_proj, alpha, compute_ts) {
 
       Y_1_indices <- setdiff(1:n_obs, Y_0_indices)
 
-      Y_0 <- matrix(true_sample[Y_0_indices, ], ncol = d)
+      Y_0 <- matrix(data[Y_0_indices, ], ncol = d)
 
-      Y_1 <- matrix(true_sample[Y_1_indices, ], ncol = d)
+      Y_1 <- matrix(data[Y_1_indices, ], ncol = d)
 
       # Get projections of Y_0 and Y_1
       Y_0 <- as.numeric(Y_0 %*% random_vector)
@@ -45,7 +49,7 @@ fully_NP_randproj <- function(data, B, n_proj, alpha, compute_ts) {
       eval_kde_D0 <- kde_D1$estimate
 
       # Get log-concave MLE on D_0
-      log_concave_D0 <- logcondens::logConDens(x = Y_0, smoothed = F)
+      log_concave_D0 <- logcondens::logConDens(x = Y_0, smoothed = FALSE)
 
       # Evaluate log-concave MLE on D_0
       eval_log_concave_D0 <- logcondens::evaluateLogConDens(
@@ -61,7 +65,7 @@ fully_NP_randproj <- function(data, B, n_proj, alpha, compute_ts) {
     }
 
     # Stop early if likelihood ratio already guarantees rejection
-    if(compute_ts == 0 & sum(ts_mat, na.rm = T) >= n_proj * B / alpha) {
+    if(compute_ts == 0 & sum(ts_mat, na.rm = TRUE) >= n_proj * B / alpha) {
       ts_mat[is.na(ts_mat)] <- 0
       test_stat <- NA_real_
       reject_null <- 1
@@ -73,7 +77,7 @@ fully_NP_randproj <- function(data, B, n_proj, alpha, compute_ts) {
   # If computing test stat, get average subsampled test stat across projections
   if(compute_ts == 1) {
     test_stat <- mean(ts_mat)
-    reject_null <- as.numeric(avg_test_stat >= 1/alpha)
+    reject_null <- as.numeric(test_stat >= 1/alpha)
   }
 
   # Return test statistic and whether to reject H_0.

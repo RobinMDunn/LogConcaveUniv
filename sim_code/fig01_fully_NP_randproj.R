@@ -93,8 +93,9 @@ for(row in 1:nrow(results)) {
 
   # Run fully nonparametric random projection test to determine
   # whether to reject H_0
-  test_out <- fully_NP_randproj(data = true_sample, B = B, n_proj = n_proj,
-                                alpha = alpha, compute_ts = compute_ts)
+  test_out <- LogConcaveUniv::fully_NP_randproj(data = true_sample, B = B,
+                                                n_proj = n_proj, alpha = alpha,
+                                                compute_ts = compute_ts)
 
   results[row, avg_ts := test_out$test_stat]
   results[row, reject := test_out$reject_null]
