@@ -23,7 +23,7 @@ paper_theme <- theme_bw() +
 perm_test <- fread("sim_data/fig03_perm_test.csv") %>% 
   mutate(Method = "Permutation test (B = 99 shuffles)")
 
-full_oracle <- fread("sim_data/fig03_full_oracle.csv") %>% 
+full_oracle <- fread("sim_data/fig03_full_oracle_ddim.csv") %>% 
   mutate(Method = "Full oracle, d-dim (B = 100)")
 
 # Combine results
