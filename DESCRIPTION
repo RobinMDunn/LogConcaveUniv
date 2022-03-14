@@ -17,5 +17,6 @@ Imports:
     logcondens,
     magrittr,
     MASS,
+    mvtnorm,
     progress,
     purrr

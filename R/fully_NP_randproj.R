@@ -74,6 +74,13 @@ fully_NP_randproj <- function(data, B, n_proj, alpha, compute_ts) {
 
   }
 
+  # If not computing test stat but cannot reject, set test_stat to NA and
+  # reject_null to 0
+  if(compute_ts == 0 & sum(ts_mat) < n_proj * B / alpha) {
+    test_stat <- NA_real_
+    reject_null <- 0
+  }
+
   # If computing test stat, get average subsampled test stat across projections
   if(compute_ts == 1) {
     test_stat <- mean(ts_mat)
