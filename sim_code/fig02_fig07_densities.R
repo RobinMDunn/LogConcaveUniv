@@ -26,7 +26,7 @@ density_df <-
 # Set simulation numbers for seed values
 density_df[mu_norm == 0 & n_obs == 5000 & d == 1, sim := 10]
 density_df[mu_norm == 2 & n_obs == 5000 & d == 1, sim := 11]
-density_df[mu_norm == 2 & n_obs == 5000 & d == 1, sim := 11]
+density_df[mu_norm == 4 & n_obs == 5000 & d == 1, sim := 12]
 
 # Set up progress bar
 pb <- progress::progress_bar$new(format = "sim :current / :total [:bar] :eta",
