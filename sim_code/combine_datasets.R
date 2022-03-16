@@ -1,6 +1,9 @@
 # Merge all .csv files with a given file name prefix into a single .csv file.
 # Change start_name (line 8) and file name (line 52) for different data.
 
+# Read in library
+library(LogConcaveUniv)
+
 # Set common file name start for all files to merge
 start_name <- "^fig01_fully_NP_randproj_"
 
@@ -19,7 +22,7 @@ if("test_stat" %in% colnames(file_1)) {
   file_list <- vector("list", length(filenames))
 
   for(i in 1:length(filenames)) {
-    file_list[[i]] <- fread(file = filenames[i])
+    file_list[[i]] <- data.table::fread(file = filenames[i])
     file_list[[i]]$test_stat <- as.numeric(file_list[[i]]$test_stat)
   }
 
@@ -45,5 +48,4 @@ if("test_stat" %in% colnames(file_1)) {
 }
 
 # Save new data frame
-fwrite(all_data,
-       file = "sim_data/fig01_fully_NP_randproj.csv")
+data.table::fwrite(all_data, file = "sim_data/fig01_fully_NP_randproj.csv")
