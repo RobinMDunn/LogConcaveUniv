@@ -2,6 +2,7 @@
 
 export("%>%")
 export(full_oracle_ddim)
+export(fully_NP_axis)
 export(fully_NP_randproj)
 export(perm_test_orig_ts)
 export(perm_test_shuffle_ts)
