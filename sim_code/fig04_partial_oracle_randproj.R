@@ -1,20 +1,16 @@
 # Test H_0: log-concave versus H_1: not log-concave using universal LRT.
-# Choose a random point along surface of d-dimensional unit sphere. 
+# Choose a random point along surface of d-dimensional unit sphere.
 # Project observations onto this vector, and rotate to x-axis.
 # Check whether this one-dimensional projection is log-concave.
-# Split data into D_0 and D_1. 
+# Split data into D_0 and D_1.
 # Get two-comp Gaussian density estimate on D_1. Get log-concave MLE on D_0.
 # Evaluate at all values in D_0.
 # Repeat at multiple projections. Reject if mean test stat >= 1/alpha.
 
-suppressMessages(library(logcondens))
-suppressMessages(library(MASS))
-suppressMessages(library(data.table))
-suppressMessages(library(progress))
-suppressMessages(library(tidyverse))
-suppressMessages(library(mclust))
+# Read in library
+library(LogConcaveUniv)
 
-# Read in arguments for file with all parameters and 
+# Read in arguments for file with all parameters and
 # line number for parameters for current simulation.
 
 parameter_file <- "sim_params/fig04_partial_oracle_randproj_params.csv"
@@ -26,21 +22,21 @@ if (length(args) > 0) {
   line_number <- as.numeric(args[2])
 }
 
-parameter_df <- fread(parameter_file)
+parameter_df <- data.table::fread(parameter_file)
 
 # Assign arguments based on input.
 # Arguments are d (dimension), mu_norm, n_obs (number of obs),
-# start_sim (index of starting sim), n_sim (number of sims), 
+# start_sim (index of starting sim), n_sim (number of sims),
 # n_proj (number of random projections),
 # B (number of subsamples),
-# equal_space_mu (indicator for mu structure in second component. 
+# equal_space_mu (indicator for mu structure in second component.
 #                 If 1, each component is ||mu||*d^(-1/2).
 #                 If 0, mu = (||mu||, 0, ... 0),
 # compute_ts (indicator for whether to compute test stat.
 #             If 1, computes test stat.
 #             If 0, does not compute test stat, allowing for early rejection.)
 
-parameters <- parameter_df %>% slice(line_number)
+parameters <- parameter_df %>% dplyr::slice(line_number)
 d <- parameters$d
 mu_norm <- parameters$mu_norm
 n_obs <- parameters$n_obs
@@ -66,127 +62,48 @@ p <- 0.5
 alpha <- 0.1
 
 # Create data frame to store results
-results <- data.table(n_obs = n_obs, d = d, mu_norm = mu_norm,
-                      equal_space_mu = equal_space_mu, n_proj = n_proj, B = B,
-                      sim = start_sim:(start_sim + n_sim - 1), alpha = alpha,
-                      p_0 = p, avg_ts = NA_real_, reject = NA_real_)
+results <- data.table::data.table(n_obs = n_obs, d = d, mu_norm = mu_norm,
+                                  equal_space_mu = equal_space_mu,
+                                  n_proj = n_proj, B = B,
+                                  sim = start_sim:(start_sim + n_sim - 1),
+                                  alpha = alpha, p_0 = p, avg_ts = NA_real_,
+                                  reject = NA_real_)
 
 # Set up progress bar
-pb <- progress_bar$new(format = "sim :current / :total [:bar] :eta",
-                       total = nrow(results), 
-                       clear = T, show_after = 0)
+pb <- progress::progress_bar$new(format = "sim :current / :total [:bar] :eta",
+                                 total = nrow(results),
+                                 clear = T, show_after = 0)
 
 # Run simulations to check whether to reject H_0
 for(row in 1:nrow(results)) {
-  
+
   #Increment progression bar
   pb$tick()
-  
+
   # Generate sample from two-component normal location model
   true_sample <- matrix(NA, nrow = n_obs, ncol = d)
-  
+
   for(i in 1:n_obs) {
     mixture_comp <- rbinom(n = 1, size = 1, prob = p)
     if(mixture_comp == 0) {
-      true_sample[i, ] <- mvrnorm(n = 1, mu = rep(0, d), Sigma = diag(d))
+      true_sample[i, ] <- MASS::mvrnorm(n = 1, mu = rep(0, d), Sigma = diag(d))
     } else if(mixture_comp == 1) {
-      true_sample[i, ] <- mvrnorm(n = 1, mu = 0 - mu, Sigma = diag(d))
+      true_sample[i, ] <- MASS::mvrnorm(n = 1, mu = 0 - mu, Sigma = diag(d))
     }
   }
-  
-  # Matrix of subsampled test statistics
-  ts_mat <- matrix(NA, nrow = n_proj, ncol = B)
-  
-  # Repeatedly get test statistic on different projections
-  for(proj in 1:n_proj) {
-    
-    # Get random vector for projection
-    random_vector <- rnorm(n = d, mean = 0, sd = 1)
-    
-    random_vector <- random_vector / sqrt(sum(random_vector^2))
-    
-    for(b in 1:B) {
-      
-      # Split Y into Y_0 and Y_1
-      Y_0_indices <- sample(1:n_obs, size = n_obs/2)
-      
-      Y_1_indices <- setdiff(1:n_obs, Y_0_indices)
-      
-      Y_0 <- matrix(true_sample[Y_0_indices, ], ncol = d)
-      
-      Y_1 <- matrix(true_sample[Y_1_indices, ], ncol = d)
-      
-      # Get projections of Y_0 and Y_1
-      Y_0 <- as.numeric(Y_0 %*% random_vector)
-      
-      Y_1 <- as.numeric(Y_1 %*% random_vector)
-      
-      # Remove previously fitted mclust_dens_D1 object
-      if(exists("mclust_dens_D1")) { rm(mclust_dens_D1) }
-      
-      # Get two-component Gaussian mixture on D_1.  
-      ptm <- proc.time()
-      mclust_dens_D1 <- try(densityMclust(data = Y_1, G = 2, modelNames = "V",
-                                          warn = FALSE, verbose = FALSE,
-                                          plot = FALSE))
-      proc.time() - ptm
-      if(is(mclust_dens_D1, "try-error") | is.null(mclust_dens_D1)) {
-        mclust_dens_D1 <- try(densityMclust(data = Y_1, G = 2,
-                                            modelNames = "E",
-                                            warn = FALSE, verbose = FALSE,
-                                            plot = FALSE))
-      }
-      
-      # If mclust_dens_D1 is not an Mclust object, fit a single Normal density.
-      # (This is very rare in simulations.)
-      if(!("Mclust" %in% class(mclust_dens_D1))) {
-        print("Fitting single Normal density")
-        mclust_dens_D1 <- try(densityMclust(data = Y_1, G = 1, modelNames = "V",
-                                            warn = FALSE, verbose = FALSE,
-                                            plot = FALSE))
-      }
-      
-      # Evaluate Gaussian mixture on D_0
-      eval_gauss_mix_D0 <- predict.densityMclust(object = mclust_dens_D1, 
-                                                 newdata = Y_0, what = "dens")
-      
-      # Get log-concave MLE on D_0
-      log_concave_D0 <- logConDens(x = Y_0, smoothed = F)
-      
-      # Evaluate log-concave MLE on D_0
-      eval_log_concave_D0 <- evaluateLogConDens(
-        xs = Y_0, res = log_concave_D0, which = 2)[, 3]
-      
-      # Store test stat for the projection
-      ts_mat[proj, b] <- 
-        exp(sum(log(eval_gauss_mix_D0)) - sum(log(eval_log_concave_D0)))
-      
-      # Stop if test stat is NA
-      stopifnot(!is.na(ts_mat[proj, b]))
-      
-    }
-    
-    # Stop early if likelihood ratio already guarantees rejection
-    if(compute_ts == 0 & sum(ts_mat, na.rm = T) >= n_proj * B / alpha) {
-      ts_mat[is.na(ts_mat)] <- 0
-      break
-    }
-    
-  }
-  
-  # Get average subsampled test stat across projections
-  avg_test_stat <- mean(ts_mat)
-  
-  # Store average test stat
-  if(compute_ts == 1) {
-    results[row, avg_ts := avg_test_stat]
-  }
-  
-  # Reject H_0 if avg_ts >= 1/alpha
-  results[row, reject := as.numeric(avg_test_stat >= 1/alpha)]
- 
+
+  # Run partial oracle random projection test to determine whether to reject H_0
+  test_out <-
+    LogConcaveUniv::partial_oracle_randproj(data = true_sample, B = B,
+                                            n_proj = n_proj, alpha = alpha,
+                                            compute_ts = compute_ts)
+
+  results[row, avg_ts := test_out$test_stat]
+  results[row, reject := test_out$reject_null]
+
 }
 
 # Save simulation results
-fwrite(results, file = paste0("sim_data/fig04_partial_oracle_randproj_",
-                              line_number, ".csv"))
+data.table::fwrite(results,
+                   file = paste0("sim_data/fig04_partial_oracle_randproj_",
+                                 line_number, ".csv"))
