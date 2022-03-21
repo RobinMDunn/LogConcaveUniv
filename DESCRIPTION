@@ -13,6 +13,7 @@ Imports:
     data.table,
     dplyr,
     EMCluster,
+    ggplot2,
     ks,
     LogConcDEAD,
     logcondens,
@@ -21,4 +22,5 @@ Imports:
     mclust,
     mvtnorm,
     progress,
-    purrr
+    purrr,
+    tidyr
