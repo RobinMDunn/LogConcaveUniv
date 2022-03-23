@@ -1,13 +1,37 @@
-#' Title
+#' Full oracle d-dimensional test for log-concavity
 #'
-#' @param data
-#' @param B
-#' @param alpha
-#' @param mu
-#' @param p
-#' @param compute_ts
+#' @description Run the full oracle d-dimensional test of
+#' "H_0: true density is log-concave" versus
+#' "H_1: true density is not log-concave."
+#' This function assumes that the underlying distribution is a d-dimensional
+#' mixture of two Normal distributions with the form
+#' \eqn{(1-p) N(0, I_d) + p N(-mu, I_d)}. In addition, this approach assumes
+#' that we know
+#' the true underlying density. (Hence, this is a helpful theoretical
+#' comparison, but it likely will not be used in practice.)
 #'
-#' @return
+#' @param data \eqn{n x d} data frame containing iid observations.
+#' One row per observation.
+#' We wish to test whether the underlying density is log-concave.
+#' @param B Number of repeated subsamples for test statistic construction
+#' @param alpha Significance level
+#' @param mu Mean parameter from the underlying distribution
+#' \eqn{(1-p) N(0, I_d) + p N(-mu, I_d)}
+#' @param p Mixing parameter from the underlying distribution
+#' \eqn{(1-p) N(0, I_d) + p N(-mu, I_d)}
+#' @param compute_ts Indicator for whether to compute test statistic.
+#' Set `compute_ts = 0` to stop early if rejection is guaranteed after some
+#' b < B subsamples.
+#' Set `compute_ts = 1` to perform all B subsamples and compute the
+#' test statistic.
+#'
+#' @return List containing `test_stat` and `reject_null`.
+#' \itemize{
+#'   \item `test_stat` --- If `compute_ts = 1`, this is the final test statistic,
+#'   averaged over B subsamples. If `compute_ts = 0`, this is NA.
+#'   \item `reject_null` --- Indicator that equals 1 if we reject H_0 at level
+#'   `alpha` and 0 if we do not reject H_0 at level `alpha`.
+#' }
 #' @export
 full_oracle_ddim <- function(data, B, alpha, mu, p, compute_ts) {
 
