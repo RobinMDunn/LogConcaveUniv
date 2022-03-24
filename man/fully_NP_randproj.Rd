@@ -41,5 +41,6 @@ density, and it does not assume any structure on the underlying distribution.
 This method computes test statistics by projecting the data onto \code{n_proj}
 random directions. We construct \code{B} subsampled test statistics on each of the
 \code{n_proj} directions. The final test statistic is the average of the
-\code{B} x \code{n_proj} test statistics.
+\code{B} x \code{n_proj} test statistics. This method rejects H_0 if the average
+exceeds 1/alpha.
 }

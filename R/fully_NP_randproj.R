@@ -8,7 +8,8 @@
 #' This method computes test statistics by projecting the data onto `n_proj`
 #' random directions. We construct `B` subsampled test statistics on each of the
 #' `n_proj` directions. The final test statistic is the average of the
-#' `B` x `n_proj` test statistics.
+#' `B` x `n_proj` test statistics. This method rejects H_0 if the average
+#' exceeds 1/alpha.
 #'
 #' @param data \eqn{n x d} data frame containing iid observations.
 #' One row per observation.

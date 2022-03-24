@@ -9,6 +9,8 @@
 #' that we know
 #' the true underlying density. (Hence, this is a helpful theoretical
 #' comparison, but it likely will not be used in practice.)
+#' This method averages test statistics over B subsamples and
+#' rejects H_0 if the average exceeds 1/alpha.
 #'
 #' @param data \eqn{n x d} data frame containing iid observations.
 #' One row per observation.
