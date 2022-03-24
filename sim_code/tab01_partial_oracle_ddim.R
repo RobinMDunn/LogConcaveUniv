@@ -83,7 +83,7 @@ for(row in 1:nrow(results)) {
 
   # Run partial oracle d-dim test to determine whether to reject H_0
   test_out <- LogConcaveUniv::partial_oracle_ddim(data = true_sample, B = B,
-                                                  alpha = alpha, p = p,
+                                                  alpha = alpha,
                                                   compute_ts = compute_ts)
 
   # Get end time for simulation
