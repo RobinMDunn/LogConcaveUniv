@@ -2,16 +2,42 @@
 % Please edit documentation in R/partial_oracle_ddim.R
 \name{partial_oracle_ddim}
 \alias{partial_oracle_ddim}
-\title{Title}
+\title{Partial oracle d-dimensional test for log-concavity}
 \usage{
-partial_oracle_ddim(data, B, alpha, p, compute_ts)
+partial_oracle_ddim(data, B, alpha, compute_ts)
 }
 \arguments{
-\item{compute_ts}{}
+\item{data}{\eqn{n x d} data frame containing iid observations.
+One row per observation.
+We wish to test whether the underlying density is log-concave.}
+
+\item{B}{Number of repeated subsamples for test statistic construction}
+
+\item{alpha}{Significance level}
+
+\item{compute_ts}{Indicator for whether to compute test statistic.
+Set \code{compute_ts = 0} to stop early if rejection is guaranteed after some
+b < B subsamples.
+Set \code{compute_ts = 1} to perform all B subsamples and compute the
+test statistic.}
 }
 \value{
-
+List containing \code{test_stat} and \code{reject_null}.
+\itemize{
+\item \code{test_stat} --- If \code{compute_ts = 1}, this is the final test statistic,
+averaged over B subsamples. If \code{compute_ts = 0}, this is NA.
+\item \code{reject_null} --- Indicator that equals 1 if we reject H_0 at level
+\code{alpha} and 0 if we do not reject H_0 at level \code{alpha}.
+}
 }
 \description{
-Title
+Run the partial oracle d-dimensional test of
+"H_0: true density is log-concave" versus
+"H_1: true density is not log-concave."
+This function computes the numerator density by fitting a mixture of
+two d-dimensional Normal distributions. This is a "partial oracle"
+because this approach uses the fact that the density is a mixture of
+Normals, but it estimates all parameters of the mixture.
+This method averages test statistics over B subsamples and
+rejects H_0 if the average exceeds 1/alpha.
 }
