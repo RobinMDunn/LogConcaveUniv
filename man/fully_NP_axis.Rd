@@ -2,16 +2,33 @@
 % Please edit documentation in R/fully_NP_axis.R
 \name{fully_NP_axis}
 \alias{fully_NP_axis}
-\title{Title}
+\title{Fully nonparametric, axis-aligned test for log-concavity}
 \usage{
 fully_NP_axis(data, B, alpha)
 }
 \arguments{
-\item{alpha}{}
+\item{data}{\eqn{n x d} data frame containing iid observations.
+One row per observation.
+We wish to test whether the underlying density is log-concave.}
+
+\item{B}{Number of repeated subsamples for test statistic construction}
+
+\item{alpha}{Significance level}
 }
 \value{
-
+List containing \code{reject_null}.
+\itemize{
+\item \code{reject_null} --- Indicator that equals 1 if we reject H_0 at level
+\code{alpha} and 0 if we do not reject H_0 at level \code{alpha}.
+}
 }
 \description{
-Title
+Run the fully nonparametric axis-aligned test of
+"H_0: true density is log-concave" versus
+"H_1: true density is not log-concave."
+This function uses kernel density estimation to compute the numerator
+density, and it does not assume any structure on the underlying distribution.
+This method computes test statistics (averaged over B subsamples) on each of
+the d axis directions. The test rejects H_0 if at least one of the test
+statistics exceeds d/alpha.
 }
