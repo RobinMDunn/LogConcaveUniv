@@ -2,16 +2,44 @@
 % Please edit documentation in R/fully_NP_randproj.R
 \name{fully_NP_randproj}
 \alias{fully_NP_randproj}
-\title{Title}
+\title{Fully nonparametric, random projection test for log-concavity}
 \usage{
 fully_NP_randproj(data, B, n_proj, alpha, compute_ts)
 }
 \arguments{
-\item{compute_ts}{}
+\item{data}{\eqn{n x d} data frame containing iid observations.
+One row per observation.
+We wish to test whether the underlying density is log-concave.}
+
+\item{B}{Number of repeated subsamples on each random projection}
+
+\item{n_proj}{Number of random projections}
+
+\item{alpha}{Significance level}
+
+\item{compute_ts}{Indicator for whether to compute test statistic.
+Set \code{compute_ts = 0} to stop early if rejection is guaranteed after some
+b < B subsamples.
+Set \code{compute_ts = 1} to perform all B subsamples and compute the
+test statistic.}
 }
 \value{
-
+List containing \code{test_stat} and \code{reject_null}.
+\itemize{
+\item \code{test_stat} --- If \code{compute_ts = 1}, this is the final test statistic,
+averaged over \code{B} x \code{n_proj} subsamples. If \code{compute_ts = 0}, this is NA.
+\item \code{reject_null} --- Indicator that equals 1 if we reject H_0 at level
+\code{alpha} and 0 if we do not reject H_0 at level \code{alpha}.
+}
 }
 \description{
-Title
+Run the fully nonparametric, random projection test of
+"H_0: true density is log-concave" versus
+"H_1: true density is not log-concave."
+This function uses kernel density estimation to compute the numerator
+density, and it does not assume any structure on the underlying distribution.
+This method computes test statistics by projecting the data onto \code{n_proj}
+random directions. We construct \code{B} subsampled test statistics on each of the
+\code{n_proj} directions. The final test statistic is the average of the
+\code{B} x \code{n_proj} test statistics.
 }
