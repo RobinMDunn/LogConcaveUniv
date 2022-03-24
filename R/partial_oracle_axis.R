@@ -1,10 +1,27 @@
-#' Title
+#' Partial oracle, axis-aligned test for log-concavity
 #'
-#' @param data
-#' @param B
-#' @param alpha
+#' @description Run the partial oracle axis-aligned test of
+#' "H_0: true density is log-concave" versus
+#' "H_1: true density is not log-concave."
+#' This function computes the numerator density by fitting a mixture of
+#' two d-dimensional Normal distributions. This is a "partial oracle"
+#' because this approach uses the fact that the density is a mixture of
+#' Normals, but it estimates all parameters of the mixture.
+#' This method computes test statistics (averaged over B subsamples) on each of
+#' the d axis directions. The test rejects H_0 if at least one of the test
+#' statistics exceeds d/alpha.
 #'
-#' @return
+#' @param data \eqn{n x d} data frame containing iid observations.
+#' One row per observation.
+#' We wish to test whether the underlying density is log-concave.
+#' @param B Number of repeated subsamples for test statistic construction
+#' @param alpha Significance level
+#'
+#' @return List containing `reject_null`.
+#' \itemize{
+#'   \item `reject_null` --- Indicator that equals 1 if we reject H_0 at level
+#'   `alpha` and 0 if we do not reject H_0 at level `alpha`.
+#' }
 #' @export
 partial_oracle_axis <- function(data, B, alpha) {
 
