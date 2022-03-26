@@ -15,7 +15,7 @@
 #' We wish to test whether the underlying density is log-concave.
 #' @param dens_sample \eqn{n x d} data frame containing observations sampled
 #' from the log-concave MLE
-#' @param all_obs \eq{2n x d} data frame containing original observations and
+#' @param all_obs \eqn{2n x d} data frame containing original observations and
 #' data sampled from the log-concave MLE. Use the command
 #' `rbind(data, dens_sample)` to construct this data frame.
 #' @param d Dimension of the original sample
