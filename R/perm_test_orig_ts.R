@@ -18,7 +18,7 @@
 #' @param all_obs \eqn{2n x d} data frame containing original observations and
 #' data sampled from the log-concave MLE. Use the command
 #' `rbind(data, dens_sample)` to construct this data frame.
-#' @param d Dimension of the original sample
+#' @param d Dimension of an observation in the original sample
 #'
 #' @return Numeric value equal to original permutation test statistic
 #' @export

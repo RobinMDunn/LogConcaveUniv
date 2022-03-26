@@ -2,16 +2,32 @@
 % Please edit documentation in R/perm_test_shuffle_ts.R
 \name{perm_test_shuffle_ts}
 \alias{perm_test_shuffle_ts}
-\title{Title}
+\title{Compute shuffled permutation test statistics}
 \usage{
 perm_test_shuffle_ts(all_obs, B, d, n_obs)
 }
 \arguments{
-\item{n_obs}{}
+\item{all_obs}{\eqn{2n x d} data frame containing original observations and
+data sampled from the log-concave MLE}
+
+\item{B}{Number of shuffled test statistics to compute}
+
+\item{d}{Dimension of an observation in the original sample}
+
+\item{n_obs}{Number of observations in the original sample}
 }
 \value{
-
+Numeric vector containing shuffled permutation test statistics
 }
 \description{
-Title
+This function computes B shuffled permutation test statistics,
+with observations shuffled between the original sample and the synthetic
+data, sampled from the log-concave MLE. For each test statistic, suppose
+the observed and synthetic data are randomly partitioned into Y(b) and
+Y*(b).
+Suppose A_0 is the set of all balls centered at a point in union(Y(b), Y*(b)),
+\eqn{P_{n,b}(A)} is the proportion of observations in ball A out of all
+observations in Y(b), and \eqn{P*_{n,b}(A)} is the proportion of observations in
+ball A out of all observations in Y*(b). The shuffled test statistic equals
+\eqn{sup_{A in A_0} |P_{n,b}(A) - P*_{n,b}(A)|}.
 }

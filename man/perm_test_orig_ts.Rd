@@ -18,7 +18,7 @@ from the log-concave MLE}
 data sampled from the log-concave MLE. Use the command
 \code{rbind(data, dens_sample)} to construct this data frame.}
 
-\item{d}{Dimension of the original sample}
+\item{d}{Dimension of an observation in the original sample}
 }
 \value{
 Numeric value equal to original permutation test statistic
