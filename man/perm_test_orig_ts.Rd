@@ -2,16 +2,35 @@
 % Please edit documentation in R/perm_test_orig_ts.R
 \name{perm_test_orig_ts}
 \alias{perm_test_orig_ts}
-\title{Title}
+\title{Compute original permutation test statistic}
 \usage{
-perm_test_orig_ts(data, all_obs, d, dens_sample)
+perm_test_orig_ts(data, dens_sample, all_obs, d)
 }
 \arguments{
-\item{dens_sample}{}
+\item{data}{\eqn{n x d} data frame containing iid original observations.
+One row per observation.
+We wish to test whether the underlying density is log-concave.}
+
+\item{dens_sample}{\eqn{n x d} data frame containing observations sampled
+from the log-concave MLE}
+
+\item{all_obs}{\eq{2n x d} data frame containing original observations and
+data sampled from the log-concave MLE. Use the command
+\code{rbind(data, dens_sample)} to construct this data frame.}
+
+\item{d}{Dimension of the original sample}
 }
 \value{
-
+Numeric value equal to original permutation test statistic
 }
 \description{
-Title
+This function computes the original permutation test statistic,
+keeping separate the original sample and data sampled from log-concave MLE.
+Suppose Y contains the data from the original sample (\code{data}) and Y*
+contains the data sampled from the log-concave MLE (\code{dens_sample}).
+Suppose A_0 is the set of all balls centered at a point in union(Y, Y*),
+P_n(A) is the proportion of observations in ball A out of all observations
+in Y, and P*_n(A) is the proportion of observations in ball A out of all
+observations in Y*. The test statistic equals
+\eqn{sup_{A in A_0} |P_n(A) - P*_n(A)|}.
 }

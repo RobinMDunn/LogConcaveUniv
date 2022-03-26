@@ -1,13 +1,28 @@
-#' Title
+#' Compute original permutation test statistic
 #'
-#' @param data
-#' @param all_obs
-#' @param d
-#' @param dens_sample
+#' @description This function computes the original permutation test statistic,
+#' keeping separate the original sample and data sampled from log-concave MLE.
+#' Suppose Y contains the data from the original sample (`data`) and Y*
+#' contains the data sampled from the log-concave MLE (`dens_sample`).
+#' Suppose A_0 is the set of all balls centered at a point in union(Y, Y*),
+#' P_n(A) is the proportion of observations in ball A out of all observations
+#' in Y, and P*_n(A) is the proportion of observations in ball A out of all
+#' observations in Y*. The test statistic equals
+#' \eqn{sup_{A in A_0} |P_n(A) - P*_n(A)|}.
 #'
-#' @return
+#' @param data \eqn{n x d} data frame containing iid original observations.
+#' One row per observation.
+#' We wish to test whether the underlying density is log-concave.
+#' @param dens_sample \eqn{n x d} data frame containing observations sampled
+#' from the log-concave MLE
+#' @param all_obs \eq{2n x d} data frame containing original observations and
+#' data sampled from the log-concave MLE. Use the command
+#' `rbind(data, dens_sample)` to construct this data frame.
+#' @param d Dimension of the original sample
+#'
+#' @return Numeric value equal to original permutation test statistic
 #' @export
-perm_test_orig_ts <- function(data, all_obs, d, dens_sample) {
+perm_test_orig_ts <- function(data, dens_sample, all_obs, d) {
 
   # Initialize original sample test statistic
   orig_ts <- 0

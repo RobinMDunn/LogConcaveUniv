@@ -44,8 +44,8 @@ permutation_test <- function(data, B, alpha) {
   all_obs <- rbind(data, dens_sample)
 
   # Get original sample test statistic
-  orig_ts <- perm_test_orig_ts(data = data, all_obs = all_obs, d = d,
-                               dens_sample = dens_sample)
+  orig_ts <- perm_test_orig_ts(data = data, dens_sample = dens_sample,
+                               all_obs = all_obs, d = d)
 
   # Get permutation test shuffled statistics
   shuffle_ts <- perm_test_shuffle_ts(all_obs = all_obs, B = B, d = d,
