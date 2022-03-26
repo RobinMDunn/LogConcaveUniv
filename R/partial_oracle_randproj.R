@@ -1,12 +1,37 @@
-#' Title
+#' Partial oracle, random projection test for log-concavity
 #'
-#' @param data
-#' @param B
-#' @param n_proj
-#' @param alpha
-#' @param compute_ts
+#' @description Run the partial oracle, random projection test of
+#' "H_0: true density is log-concave" versus
+#' "H_1: true density is not log-concave."
+#' This function computes the numerator density by fitting a mixture of
+#' two d-dimensional Normal distributions. This is a "partial oracle"
+#' because this approach uses the fact that the density is a mixture of
+#' Normals, but it estimates all parameters of the mixture.
+#' This method computes test statistics by projecting the data onto `n_proj`
+#' random directions. We construct `B` subsampled test statistics on each of the
+#' `n_proj` directions. The final test statistic is the average of the
+#' `B` x `n_proj` test statistics. This method rejects H_0 if the average
+#' exceeds 1/alpha.
 #'
-#' @return
+#' @param data \eqn{n x d} data frame containing iid observations.
+#' One row per observation.
+#' We wish to test whether the underlying density is log-concave.
+#' @param B Number of repeated subsamples on each random projection
+#' @param n_proj Number of random projections
+#' @param alpha Significance level
+#' @param compute_ts Indicator for whether to compute test statistic.
+#' Set `compute_ts = 0` to stop early if rejection is guaranteed after some
+#' b < B subsamples.
+#' Set `compute_ts = 1` to perform all B subsamples and compute the
+#' test statistic.
+#'
+#' @return List containing `test_stat` and `reject_null`.
+#' \itemize{
+#'   \item `test_stat` --- If `compute_ts = 1`, this is the final test statistic,
+#'   averaged over `B` x `n_proj` subsamples. If `compute_ts = 0`, this is NA.
+#'   \item `reject_null` --- Indicator that equals 1 if we reject H_0 at level
+#'   `alpha` and 0 if we do not reject H_0 at level `alpha`.
+#' }
 #' @export
 partial_oracle_randproj <- function(data, B, n_proj, alpha, compute_ts) {
 
