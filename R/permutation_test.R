@@ -1,10 +1,32 @@
-#' Title
+#' Permutation test for log-concavity
 #'
-#' @param data
-#' @param B
-#' @param alpha
+#' @description Run the permutation test of
+#' "H_0: true density is log-concave" versus
+#' "H_1: true density is not log-concave."
+#' This method computes the log-concave MLE on the original sample,
+#' draws a synthetic sample from the log-concave MLE, and computes an original
+#' test statistic based on the difference (between the original sample and
+#' the synthetic sample) in proportions of observations contained in certain
+#' spheres. This method also computes B statistics with observations shuffled
+#' between the original sample and the synthetic sample. The test rejects H_0
+#' if the original test statistic exceeds the (B+1)*(1-alpha) quantile of
+#' the shuffled test statistics.
 #'
-#' @return
+#' @param data \eqn{n x d} data frame containing iid observations.
+#' One row per observation.
+#' We wish to test whether the underlying density is log-concave.
+#' @param B Number of shuffled test statistics to compute
+#' @param alpha Significance level
+#'
+#' @return List containing `orig_ts`, `shuffle_ts`, and `reject_null`.
+#' \itemize{
+#'   \item `orig_ts` --- Test statistic on sample that keeps separate the
+#'   original sample and data sampled from log-concave MLE.
+#'   \item `shuffle_ts` --- Vector of B test statistics, computed on shufflings
+#'   of the original sample and data sampled from log-concave MLE.
+#'   \item `reject_null` --- Indicator that equals 1 if we reject H_0 at level
+#'   `alpha` and 0 if we do not reject H_0 at level `alpha`.
+#' }
 #' @export
 permutation_test <- function(data, B, alpha) {
 
