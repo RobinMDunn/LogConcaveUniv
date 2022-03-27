@@ -6,7 +6,7 @@ This repository contains code to replicate the results of [Universal Inference M
 
 - [R](R): Function definitions
 - [man](man): Package documentation files
-- [sim_batch_scripts](sim_batch_scripts): Contains SLURM batch scripts to run the simulations. Scripts are labeled by the figure for which their simulations produce data. These scripts run the code in [sim_code](sim_code), using the parameters in [sim_params](sim_params). 
+- [sim_batch_scripts](sim_batch_scripts): Contains SLURM batch scripts to run the simulations. Scripts are labeled by the figure associated with the simulations. These scripts run the code in [sim_code](sim_code), using the parameters in [sim_params](sim_params). 
 - [sim_code](sim_code): Code for the paper's simulations. Scripts are labeled by the figure for which they simulate data. Each R script saves the simulation output to [sim_data](sim_data).
 - [sim_data](sim_data): Output of simulations from [sim_code](sim_code).
 - [sim_params](sim_params): Parameters for simulations. Each row contains a single choice of parameters. The scripts in [sim_code](sim_code) read in these files, and the scripts in [batch_scripts](batch_scripts) loop through all choices of parameters.
