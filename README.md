@@ -10,8 +10,8 @@ This repository contains code to replicate the results of [Universal Inference M
 - [sim_code](sim_code): Code for the paper's simulations. Scripts are labeled by the figure for which they simulate data. Each R script saves the simulation output to [sim_data](sim_data).
 - [sim_data](sim_data): Output of simulations from [sim_code](sim_code).
 - [sim_params](sim_params): Parameters for simulations. Each row contains a single choice of parameters. The scripts in [sim_code](sim_code) read in these files, and the scripts in [batch_scripts](batch_scripts) loop through all choices of parameters.
-- [sim_plot_code](sim_plot_code): Code to reproduce the paper's plots and tables. Reads in data from [sim_data](sim_data) and outputs plots to [sim_figures](sim_figures).
-- [sim_plots](sim_plots): Plots from the paper. The plots are the output of the scripts in [sim_figure_code](sim_figure_code).
+- [sim_plot_code](sim_plot_code): Code to reproduce the paper's plots and tables. Reads in data from [sim_data](sim_data) and outputs plots to [sim_plots](sim_plots).
+- [sim_plots](sim_plots): Plots from the paper. The plots are the output of the scripts in [sim_plot_code](sim_plot_code).
 
 ## Installing the LogConcaveUniv package
 
@@ -30,7 +30,7 @@ library(LogConcaveUniv)
 ## Run the simulations for a given figure
 
 ### If you have access to a supercomputer with a Slurm workload manager
-In the [sim_batch_scripts](sim_batch_scripts) folder, scripts are labeled by the figure for which they simulate data. Run all batch scripts corresponding to the figure of interest. The allocated run time is estimated from the choice of parameters for which the code has the longest run time. Many scripts will run faster than this time. The files in [sim_code](sim_code) each contain progress bars to estimate the remaining run time. You may wish to start running these files outside of a batch submission to understand the run time on your computing system. 
+In the [sim_batch_scripts](sim_batch_scripts) folder, scripts are labeled by their associated figure. Run all batch scripts corresponding to the figure of interest. The allocated run time is estimated from the choice of parameters for which the code has the longest run time. Many scripts will run faster than this time. The files in [sim_code](sim_code) each contain progress bars to estimate the remaining run time. You may wish to start running these files outside of a batch submission to understand the run time on your computing system. 
 
 The simulation output will be stored in the [data](data) folder, with one dataset per choice of parameters. To combine these datasets into a single dataset (as they currently appear in [data](data)), run the code in [sim_code/combine_datasets.R](sim_code/combine_datasets.R).
 
