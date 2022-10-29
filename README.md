@@ -1,6 +1,6 @@
 # LogConcaveUniv Repository Overview
 
-This repository contains code to replicate the results of [Universal Inference Meets Random Projections: A Scalable Test for Log-concavity](https://arxiv.org/abs/2111.09254) by [Robin Dunn](https://robinmdunn.github.io/), [Larry Wasserman](https://www.stat.cmu.edu/~larry/), and [Aaditya Ramdas](http://www.stat.cmu.edu/~aramdas/). The `LogConcaveUniv` library contains functions to reproduce the simulations.
+This repository contains code to replicate the results of [Universal Inference Meets Random Projections: A Scalable Test for Log-concavity](https://arxiv.org/abs/2111.09254) by [Robin Dunn](https://robinmdunn.github.io/), [Aditya Gangrade](https://adityagangrade.wordpress.com/), [Larry Wasserman](https://www.stat.cmu.edu/~larry/), and [Aaditya Ramdas](http://www.stat.cmu.edu/~aramdas/). The `LogConcaveUniv` library contains functions to reproduce the simulations.
 
 ## Folder contents
 
