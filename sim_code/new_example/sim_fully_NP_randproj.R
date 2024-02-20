@@ -30,6 +30,7 @@ parameter_df <- data.table::fread(parameter_file)
 # sigma (generating from (1-p) N(0, I_d) + p N(0, sigma^2 I_d)),
 # n_obs (number of obs),
 # start_sim (index of starting sim), n_sim (number of sims),
+# n_proj (number of random projections), 
 # B (number of subsamples),
 # compute_ts (indicator for whether to compute test stat.
 #             If 1, computes test stat.
