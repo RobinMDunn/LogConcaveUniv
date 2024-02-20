@@ -28,6 +28,8 @@
 #' b < B subsamples.
 #' Set `compute_ts = 1` to perform all B subsamples and compute the
 #' test statistic.
+#' @param normalizing_constant 1 divided by probability of region of truncation,
+#' if distribution is truncated.
 #'
 #' @return List containing `test_stat` and `reject_null`.
 #' \itemize{
@@ -37,7 +39,8 @@
 #'   `alpha` and 0 if we do not reject H_0 at level `alpha`.
 #' }
 #' @export
-full_oracle_ddim <- function(data, B, alpha, mu, sigma = 1, p, compute_ts) {
+full_oracle_ddim <- function(data, B, alpha, mu, sigma = 1, p, compute_ts,
+                             normalizing_constant = 1) {
 
   # Extract number of observations and dimension
   n_obs <- nrow(data)
@@ -60,8 +63,9 @@ full_oracle_ddim <- function(data, B, alpha, mu, sigma = 1, p, compute_ts) {
 
     # Evaluate true density on D_0
     eval_true_D0 <-
-      (1 - p) * mvtnorm::dmvnorm(x = Y_0, mean = rep(0, d), sigma = diag(d)) +
-      p * mvtnorm::dmvnorm(x = Y_0, mean = 0 - mu, sigma = sigma^2 * diag(d))
+      normalizing_constant *
+      ((1 - p) * mvtnorm::dmvnorm(x = Y_0, mean = rep(0, d), sigma = diag(d)) +
+       p * mvtnorm::dmvnorm(x = Y_0, mean = 0 - mu, sigma = sigma^2 * diag(d)))
 
     # Get log-concave MLE on D_0
     log_concave_D0 <- LogConcDEAD::mlelcd(x = Y_0)
