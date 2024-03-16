@@ -61,7 +61,7 @@ results <- data.table::data.table(n_obs = n_obs, d = d,
 
 # Code to run one simulation to check whether to reject H_0
 one_sim_full_oracle_ddim <- function(n_obs, d, sigma, B, sim, 
-                                     alpha, p_0, compute_ts) {
+                                     alpha, p_0, compute_ts, mu) {
 
   # Generate sample from two-component normal location model
   true_sample <- matrix(NA, nrow = n_obs, ncol = d)
@@ -87,7 +87,7 @@ one_sim_full_oracle_ddim <- function(n_obs, d, sigma, B, sim,
 
 # Run simulations to check whether to reject H_0, iterating over rows of results
 test_out <- clustermq::Q_rows(df = results, fun = one_sim_full_oracle_ddim, 
-                              n_jobs = n_cores)
+                              n_jobs = n_cores, const = list(mu = mu))
 
 # Append outputs to results df
 results$avg_ts <- sapply(test_out, FUN = function(x) x$test_stat)
