@@ -5,7 +5,7 @@
 #' "H_1: true density is not log-concave."
 #' This function assumes that the underlying distribution is a d-dimensional
 #' mixture of two Normal distributions with the form
-#' \eqn{(1-p) N(0, I_d) + p N(-mu, I_d)}. In addition, this approach assumes
+#' \eqn{(1-p) N(0, I_d) + p N(-mu, sigma^2 I_d)}. In addition, this approach assumes
 #' that we know
 #' the true underlying density. (Hence, this is a helpful theoretical
 #' comparison, but it likely will not be used in practice.)
@@ -18,14 +18,18 @@
 #' @param B Number of repeated subsamples for test statistic construction
 #' @param alpha Significance level
 #' @param mu Mean parameter from the underlying distribution
-#' \eqn{(1-p) N(0, I_d) + p N(-mu, I_d)}
+#' \eqn{(1-p) N(0, I_d) + p N(-mu, sigma^2 I_d)}
+#' @param sigma Standard deviation parameter from the underlying distribution
+#' \eqn{(1-p) N(0, I_d) + p N(-mu, sigma^2 I_d)}
 #' @param p Mixing parameter from the underlying distribution
-#' \eqn{(1-p) N(0, I_d) + p N(-mu, I_d)}
+#' \eqn{(1-p) N(0, I_d) + p N(-mu, sigma^2 I_d)}
 #' @param compute_ts Indicator for whether to compute test statistic.
 #' Set `compute_ts = 0` to stop early if rejection is guaranteed after some
 #' b < B subsamples.
 #' Set `compute_ts = 1` to perform all B subsamples and compute the
 #' test statistic.
+#' @param normalizing_constant 1 divided by probability of region of truncation,
+#' if distribution is truncated.
 #'
 #' @return List containing `test_stat` and `reject_null`.
 #' \itemize{
@@ -35,7 +39,8 @@
 #'   `alpha` and 0 if we do not reject H_0 at level `alpha`.
 #' }
 #' @export
-full_oracle_ddim <- function(data, B, alpha, mu, p, compute_ts) {
+full_oracle_ddim <- function(data, B, alpha, mu, sigma = 1, p, compute_ts,
+                             normalizing_constant = 1) {
 
   # Extract number of observations and dimension
   n_obs <- nrow(data)
@@ -58,8 +63,9 @@ full_oracle_ddim <- function(data, B, alpha, mu, p, compute_ts) {
 
     # Evaluate true density on D_0
     eval_true_D0 <-
-      (1 - p) * mvtnorm::dmvnorm(x = Y_0, mean = rep(0, d), sigma = diag(d)) +
-      p * mvtnorm::dmvnorm(x = Y_0, mean = 0 - mu, sigma = diag(d))
+      normalizing_constant *
+      ((1 - p) * mvtnorm::dmvnorm(x = Y_0, mean = rep(0, d), sigma = diag(d)) +
+       p * mvtnorm::dmvnorm(x = Y_0, mean = 0 - mu, sigma = sigma^2 * diag(d)))
 
     # Get log-concave MLE on D_0
     log_concave_D0 <- LogConcDEAD::mlelcd(x = Y_0)
