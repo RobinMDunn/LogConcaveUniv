@@ -11,16 +11,19 @@
 # Read in library
 library(LogConcaveUniv)
 
-# Read in arguments for file with all parameters and
-# line number for parameters for current simulation.
+# Read in arguments for file with all parameters,
+# line number for parameters for current simulation, and
+# number of parallel cores to use in simulation.
 
 parameter_file <- "sim_params/new_example/fully_NP_randproj_params.csv"
 line_number <- 1
+n_cores <- 1
 
 args <- commandArgs(trailingOnly = TRUE)
 if (length(args) > 0) {
   parameter_file <- args[1]
   line_number <- as.numeric(args[2])
+  n_cores <- as.numeric(args[3])
 }
 
 parameter_df <- data.table::fread(parameter_file)
@@ -60,25 +63,18 @@ results <- data.table::data.table(n_obs = n_obs, d = d,
                                   sigma = sigma,
                                   n_proj = n_proj, B = B,
                                   sim = start_sim:(start_sim + n_sim - 1),
-                                  alpha = alpha, p_0 = p, avg_ts = NA_real_,
-                                  reject = NA_real_)
+                                  alpha = alpha, p_0 = p,
+                                  compute_ts = compute_ts)
 
-# Set up progress bar
-pb <- progress::progress_bar$new(format = "sim :current / :total [:bar] :eta",
-                                 total = nrow(results),
-                                 clear = T, show_after = 0)
-
-# Run simulations to check whether to reject H_0
-for(row in 1:nrow(results)) {
-
-  #Increment progression bar
-  pb$tick()
-
+# Code to run one simulation to check whether to reject H_0
+one_sim_fully_NP_randproj <- function(n_obs, d, sigma, n_proj, B, sim, 
+                                      alpha, p_0, compute_ts) {
+  
   # Generate sample from two-component normal location model
   true_sample <- matrix(NA, nrow = n_obs, ncol = d)
 
   for(i in 1:n_obs) {
-    mixture_comp <- rbinom(n = 1, size = 1, prob = p)
+    mixture_comp <- rbinom(n = 1, size = 1, prob = p_0)
     if(mixture_comp == 0) {
       true_sample[i, ] <- rnorm(n = d, mean = 0, sd = 1)
     } else if(mixture_comp == 1) {
@@ -92,10 +88,17 @@ for(row in 1:nrow(results)) {
                                                 n_proj = n_proj, alpha = alpha,
                                                 compute_ts = compute_ts)
 
-  results[row, avg_ts := test_out$test_stat]
-  results[row, reject := test_out$reject_null]
+  return(test_out)
 
 }
+
+# Run simulations to check whether to reject H_0, iterating over rows of results
+test_out <- clustermq::Q_rows(df = results, fun = one_sim_fully_NP_randproj, 
+                              job_size = n_cores)
+
+# Append outputs to results df
+results$avg_ts <- sapply(test_out, FUN = function(x) x$test_stat)
+results$reject <- sapply(test_out, FUN = function(x) x$reject_null)
 
 # Save simulation results
 data.table::fwrite(results, file = paste0("sim_data/new_example/fully_NP_randproj_",
