@@ -100,6 +100,13 @@ test_out <- clustermq::Q_rows(df = results, fun = one_sim_fully_NP_randproj,
 results$avg_ts <- sapply(test_out, FUN = function(x) x$test_stat)
 results$reject <- sapply(test_out, FUN = function(x) x$reject_null)
 
+# Create aggregated results (number of rejections at given parameters)
+results_agg <- results %>% 
+  dplyr::group_by(n_obs, d, sigma, n_proj, B, alpha, p_0) %>% 
+  dplyr::summarize(n_reject = sum(reject), 
+                   n_sim = dplyr::n())
+
 # Save simulation results
-data.table::fwrite(results, file = paste0("sim_data/new_example/fully_NP_randproj_",
-                                          line_number, ".csv"))
+data.table::fwrite(results_agg, 
+                   file = paste0("sim_data/new_example/fully_NP_randproj_",
+                                 line_number, ".csv"))
