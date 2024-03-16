@@ -67,7 +67,7 @@ one_sim_full_oracle_ddim <- function(n_obs, d, sigma, B, sim,
   true_sample <- matrix(NA, nrow = n_obs, ncol = d)
 
   for(i in 1:n_obs) {
-    mixture_comp <- rbinom(n = 1, size = 1, prob = p)
+    mixture_comp <- rbinom(n = 1, size = 1, prob = p_0)
     if(mixture_comp == 0) {
       true_sample[i, ] <- rnorm(n = d, mean = 0, sd = 1)
     } else if(mixture_comp == 1) {
@@ -78,7 +78,7 @@ one_sim_full_oracle_ddim <- function(n_obs, d, sigma, B, sim,
   # Run full oracle d-dimensional test to determine whether to reject H_0
   test_out <- LogConcaveUniv::full_oracle_ddim(data = true_sample, B = B,
                                                alpha = alpha, mu = mu,
-                                               sigma = sigma, p = p,
+                                               sigma = sigma, p = p_0,
                                                compute_ts = compute_ts)
   
   return(test_out)
