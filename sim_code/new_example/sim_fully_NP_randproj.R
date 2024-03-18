@@ -70,7 +70,7 @@ results <- data.table::data.table(n_obs = n_obs, d = d,
 one_sim_fully_NP_randproj <- function(n_obs, d, sigma, n_proj, B, sim, 
                                       alpha, p_0, compute_ts) {
   
-  # Generate sample from two-component normal location model
+  # Generate sample from two-component normal mixture model
   true_sample <- matrix(NA, nrow = n_obs, ncol = d)
 
   for(i in 1:n_obs) {
