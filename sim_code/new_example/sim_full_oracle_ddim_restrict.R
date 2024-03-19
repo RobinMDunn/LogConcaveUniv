@@ -112,5 +112,5 @@ for(row in 1:nrow(results)) {
 }
 
 # Save simulation results
-data.table::fwrite(results, file = paste0("sim_data/new_example/full_oracle_ddim_",
+data.table::fwrite(results, file = paste0("sim_data/new_example/restrict/full_oracle_ddim_",
                                           line_number, "_restrict.csv"))
