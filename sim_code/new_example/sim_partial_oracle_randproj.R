@@ -109,5 +109,5 @@ results_agg <- results %>%
 
 # Save simulation results
 data.table::fwrite(results_agg,
-                   file = paste0("sim_data/partial_oracle_randproj_",
+                   file = paste0("sim_data/new_example/partial_oracle_randproj_",
                                  line_number, ".csv"))
