@@ -53,7 +53,9 @@ stopifnot(unique(full_oracle_ddim$B) == 100,
 ##### Plot power #####
 ######################
 
-# Plot rejection proportions
+# Plot rejection proportions (with small amount of jitter)
+set.seed(165)
+
 reject_props <- reject_df %>% 
   dplyr::mutate(Method = factor(Method,
                          levels = c("Partial oracle, random projections",
@@ -63,8 +65,9 @@ reject_props <- reject_df %>%
                          labels = c("Partial oracle, random projections",
                                     "Fully nonparametric, random projections",
                                     "Full oracle, d-dim",
-                                    "Partial oracle, d-dim"))) %>%
-  ggplot(aes(x = n_obs, y = reject_prop)) +
+                                    "Partial oracle, d-dim")),
+                reject_prop_jitter = jitter(reject_prop, amount = 0.005)) %>%
+  ggplot(aes(x = n_obs, y = reject_prop_jitter)) +
   geom_line(aes(col = Method), alpha = 0.7) +
   geom_point(aes(col = Method), alpha = 0.3) +
   geom_hline(yintercept = 0.10, lty = "dashed", col = "darkgrey") +
@@ -75,18 +78,18 @@ reject_props <- reject_df %>%
                             ": Log-concave vs H"[1]*": Not log-concave"),
        subtitle = expression("Normal mixture 0.5*(N(0,"~I[2]*") +"*
                              "N(0,"~sigma**2~I[2]*")), where"~sigma~"="~sqrt(3))) +
-  scale_color_manual(values = c("#66a3ff", "#ff8080", 
+  scale_color_manual(values = c("#0047b3", "#b30000", 
                                 "#5200cc", "#b380ff")) +
   paper_theme +
   theme(legend.position = "bottom") +
   guides(colour = guide_legend(nrow = 2)) +
   scale_x_continuous(breaks = seq(200, 1600, by = 200)) +
-  scale_y_continuous(limits = c(0, 1), breaks = seq(0, 1, by = 0.1))
+  scale_y_continuous(limits = c(-0.01, 0.2), breaks = seq(0, 0.2, by = 0.02))
   
 ######################
 ##### Save plots #####
 ######################
 
 ggsave(plot = reject_props,
-       filename = "sim_plots/new_example.pdf",
+       filename = "sim_plots/new_example_fig06.pdf",
        width = 7, height = 5)
