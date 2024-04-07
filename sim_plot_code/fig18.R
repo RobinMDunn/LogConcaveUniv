@@ -1,4 +1,4 @@
-# Create Figure 16 in appendix.
+# Create Figure 18 in appendix.
 # Plot beta densities under variety of alpha and beta parameters.
 
 suppressMessages(library(data.table))
@@ -57,5 +57,5 @@ beta_densities <- beta_df %>%
 #####################
 
 ggsave(plot = beta_densities,
-       filename = "sim_plots/figure_16.pdf",
+       filename = "sim_plots/figure_18.pdf",
        width = 10, height = 5.5)
