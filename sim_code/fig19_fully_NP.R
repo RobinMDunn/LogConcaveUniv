@@ -1,7 +1,7 @@
 # Test H_0: log-concave versus H_1: not log-concave using universal LRT.
 # Split data into D_0 and D_1.
 # Use beta distribution. Density is log-concave iff alpha_param, beta_param >= 1.
-# Use MLE beta density as numerator. Get log-concave MLE on D_0.
+# Get bounded KDE estimate on D_1, using plug-in bw. Get log-concave MLE on D_0.
 # Evaluate at all values in D_0.
 
 # Read in library
@@ -10,7 +10,7 @@ library(LogConcaveUniv)
 # Read in arguments for file with all parameters and
 # line number for parameters for current simulation.
 
-parameter_file <- "sim_params/fig17_partial_oracle_params.csv"
+parameter_file <- "sim_params/fig19_fully_NP_params.csv"
 line_number <- 1
 
 args <- commandArgs(trailingOnly = TRUE)
@@ -54,7 +54,7 @@ pb <- progress::progress_bar$new(format = "sim :current / :total [:bar] :eta",
 # Run simulations to check whether to reject H_0
 for(row in 1:nrow(results)) {
 
-  # Extract alpha and beta params
+  # Extract shape1 (alpha) and shape2 (beta) params
   alpha_param <- results[row, alpha_param]
   beta_param <- results[row, beta_param]
 
@@ -80,13 +80,11 @@ for(row in 1:nrow(results)) {
 
     Y_1 <- matrix(true_sample[Y_1_indices, ], ncol = 1)
 
-    # Get beta MLE estimates on D_1
-    beta_mle_D1 <- fitdistrplus::fitdist(data = as.numeric(Y_1), distr = "beta",
-                                         method = "mle")
+    # Get KDE on D_1
+    kde_D1 <- kde1d::kde1d(x = Y_1, xmin = 0, xmax = 1)
 
-    # Evaluate beta MLE density on D_0
-    eval_mle_D0 <- dbeta(x = Y_0, shape1 = beta_mle_D1$estimate["shape1"],
-                          shape2 = beta_mle_D1$estimate["shape2"])
+    # Evaluate KDE on D_0
+    eval_kde_D0 <- kde1d::dkde1d(x = Y_0, obj = kde_D1)
 
     # Get log-concave MLE on D_0
     log_concave_D0 <- logcondens::logConDens(x = Y_0, smoothed = FALSE)
@@ -96,7 +94,7 @@ for(row in 1:nrow(results)) {
       logcondens::evaluateLogConDens(xs = Y_0, res = log_concave_D0)[, 3]
 
     # Compute test statistic
-    ts_vec[b] <- exp(sum(log(eval_mle_D0)) - sum(log(eval_log_concave_D0)))
+    ts_vec[b] <- exp(sum(log(eval_kde_D0)) - sum(log(eval_log_concave_D0)))
   }
 
   # Get average test statistic
@@ -111,5 +109,5 @@ for(row in 1:nrow(results)) {
 }
 
 # Save simulation results
-data.table::fwrite(results, file = paste0("sim_data/fig17_partial_oracle_",
+data.table::fwrite(results, file = paste0("sim_data/fig19_fully_NP_",
                                           line_number, ".csv"))

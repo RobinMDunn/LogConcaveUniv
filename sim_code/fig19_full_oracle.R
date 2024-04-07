@@ -10,7 +10,7 @@ library(LogConcaveUniv)
 # Read in arguments for file with all parameters and
 # line number for parameters for current simulation.
 
-parameter_file <- "sim_params/fig17_full_oracle_params.csv"
+parameter_file <- "sim_params/fig19_full_oracle_params.csv"
 line_number <- 1
 
 args <- commandArgs(trailingOnly = TRUE)
@@ -106,5 +106,5 @@ for(row in 1:nrow(results)) {
 }
 
 # Save simulation results
-data.table::fwrite(results, file = paste0("sim_data/fig17_full_oracle_",
+data.table::fwrite(results, file = paste0("sim_data/fig19_full_oracle_",
                                           line_number, ".csv"))

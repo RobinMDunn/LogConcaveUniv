@@ -17,16 +17,16 @@ paper_theme <- theme_bw() +
         panel.spacing = unit(1.2, "lines"))
 
 # Read in data
-perm_test <- fread("sim_data/fig17_perm_test.csv") %>% 
+perm_test <- fread("sim_data/fig19_perm_test.csv") %>% 
   mutate(Method = "Permutation test (B = 99 shuffles)")
 
-full_oracle <- fread("sim_data/fig17_full_oracle.csv") %>% 
+full_oracle <- fread("sim_data/fig19_full_oracle.csv") %>% 
   mutate(Method = "Full oracle (B = 100)")
 
-partial_oracle <- fread("sim_data/fig17_partial_oracle.csv") %>% 
+partial_oracle <- fread("sim_data/fig19_partial_oracle.csv") %>% 
   mutate(Method = "Partial oracle (B = 100)")
 
-fully_NP <- fread("sim_data/fig17_fully_NP.csv") %>% 
+fully_NP <- fread("sim_data/fig19_fully_NP.csv") %>% 
   mutate(Method = "Fully nonparametric (B = 100)")
 
 # Combine results
@@ -93,5 +93,5 @@ reject_plot_beta <- reject_df %>%
 #####################
 
 ggsave(plot = reject_plot_beta,
-       filename = "sim_plots/figure_17.pdf",
+       filename = "sim_plots/figure_19.pdf",
        width = 10, height = 4.8)
