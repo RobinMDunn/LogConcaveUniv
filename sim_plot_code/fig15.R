@@ -17,10 +17,10 @@ paper_theme <- theme_bw() +
         panel.spacing = unit(1.2, "lines"))
 
 # Read in data
-test_stats_d1_proj <- fread(file = "sim_data/new_d1_vs_d2/test_stats_d1_proj.csv") %>% 
+test_stats_d1_proj <- fread(file = "sim_data/fig15_test_stats_d1_proj.csv") %>% 
   dplyr::mutate(test_dim = "Projection to d = 1")
 
-test_stats_d2 <- fread(file = "sim_data/new_d1_vs_d2/test_stats_d2.csv") %>% 
+test_stats_d2 <- fread(file = "sim_data/fig15_test_stats_d2.csv") %>% 
   dplyr::mutate(test_dim = "Full dimension (d = 2)")
 
 # Combine test stat data
@@ -63,6 +63,6 @@ mean(test_stats_d1_proj[abs(random_vector_1) > 0.9]$test_stat > 1000) * 100
 #####################
 
 ggsave(plot = d1_d2_test_stats, 
-       filename = "sim_plots/new_d1_vs_d2_test_stats.pdf",
+       filename = "sim_plots/figure_15.pdf",
        width = 8, height = 6)
        
