@@ -1,4 +1,4 @@
-# Create Figure 7 in appendix. This is the same as Figure 2 in the main paper.
+# Create Figure 8 in appendix. This is the same as Figure 2 in the main paper.
 # Plot log-concave MLE densities for normal mixtures at n = 5000 and d = 1.
 
 suppressMessages(library(data.table))
@@ -64,5 +64,5 @@ logconc_densities_n5000_d1 <- density_values %>%
 #####################
 
 ggsave(plot = logconc_densities_n5000_d1,
-       filename = "sim_plots/figure_07.pdf",
+       filename = "sim_plots/figure_08.pdf",
        width = 9.7, height = 5)
