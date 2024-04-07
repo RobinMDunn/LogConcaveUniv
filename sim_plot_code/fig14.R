@@ -1,4 +1,4 @@
-# Create Figure 13 in appendix.
+# Create Figure 14 in appendix.
 # Plot results from Gaussian mixture/universal approach and 
 # Cule et al. (2010) permutation test of
 # H_0: log-concave versus H_1: not log-concave.
@@ -19,7 +19,7 @@ paper_theme <- theme_bw() +
         panel.spacing = unit(1.2, "lines"))
 
 # Read in data
-full_oracle <- fread("sim_data/fig13_full_oracle.csv")
+full_oracle <- fread("sim_data/fig14_full_oracle.csv")
 
 # Get rejection proportion at each (d, mu_norm) combination
 reject_props <- full_oracle %>% 
@@ -70,5 +70,5 @@ power_vary_d <- power_pt90_df_vary_d %>%
 #####################
 
 ggsave(plot = power_vary_d,
-       filename = "sim_plots/figure_13.pdf",
+       filename = "sim_plots/figure_14.pdf",
        width = 10, height = 4)
