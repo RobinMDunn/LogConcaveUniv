@@ -1,4 +1,4 @@
-# Create Figure 12 in appendix.
+# Create Figure 13 in appendix.
 # Plot quantiles of permutation test from Cule et al. (2010).
 # H_0: log-concave versus H_1: not log-concave.
 # Use two-component normal location model.
@@ -18,7 +18,7 @@ paper_theme <- theme_bw() +
         panel.spacing = unit(1.2, "lines"))
 
 # Read in data
-results <- fread("sim_data/fig12_perm_test_stats.csv")
+results <- fread("sim_data/fig13_perm_test_stats.csv")
 
 # Data frame of quantiles and original test stats
 quantile_df <- results %>% 
@@ -90,5 +90,5 @@ perm_test_quantiles <- results %>%
 #####################
 
 ggsave(plot = perm_test_quantiles,
-       filename = "sim_plots/figure_12.pdf",
+       filename = "sim_plots/figure_13.pdf",
        width = 8, height = 7)

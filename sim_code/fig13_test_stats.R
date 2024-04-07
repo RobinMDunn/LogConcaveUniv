@@ -9,7 +9,7 @@ library(LogConcaveUniv)
 # Read in arguments for file with all parameters and
 # line number for parameters for current simulation.
 
-parameter_file <- "sim_params/fig12_test_stats_params.csv"
+parameter_file <- "sim_params/fig13_test_stats_params.csv"
 line_number <- 1
 
 args <- commandArgs(trailingOnly = TRUE)
@@ -80,5 +80,5 @@ for(b in 1:B) {
 results[, reject := perm_test_out$reject_null]
 
 # Save simulation results
-data.table::fwrite(results, file = paste0("sim_data/fig12_perm_test_stats_",
+data.table::fwrite(results, file = paste0("sim_data/fig13_perm_test_stats_",
                                           line_number, ".csv"))
