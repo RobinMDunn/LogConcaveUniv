@@ -1,4 +1,4 @@
-# Create Figure 6 in appendix.
+# Create Figure 7 in appendix.
 # Plot log-concave MLE densities for normal mixtures at n = 50 and d = 1.
 
 # Read in libraries
@@ -18,9 +18,9 @@ paper_theme <- theme_bw() +
         panel.spacing = unit(1.2, "lines"))
 
 # Read in data
-density_points <- fread("sim_data/fig06_points.csv")
+density_points <- fread("sim_data/fig07_points.csv")
 
-density_values <- fread("sim_data/fig06_densities.csv")
+density_values <- fread("sim_data/fig07_densities.csv")
 
 # Check parameters
 stopifnot(unique(density_values$d) == 1,
@@ -72,5 +72,5 @@ logconc_densities_n50_d1 <- density_values %>%
 #####################
 
 ggsave(plot = logconc_densities_n50_d1,
-       filename = "sim_plots/figure_06.pdf",
+       filename = "sim_plots/figure_07.pdf",
        width = 9.7, height = 5)

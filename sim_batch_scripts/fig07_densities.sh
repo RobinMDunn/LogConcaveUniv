@@ -4,5 +4,5 @@
 #SBATCH -N 1
 #SBATCH --ntasks-per-node 1
 
-Rscript sim_code/fig06_densities.R
+Rscript sim_code/fig07_densities.R
 
