@@ -1,4 +1,4 @@
-# Create Figure 11 in appendix.
+# Create Figure 12 in appendix.
 # Plot results from Cule et al. (2010) permutation test of
 # H_0: log-concave versus H_1: not log-concave.
 # Use two-component normal location model.
@@ -18,7 +18,7 @@ paper_theme <- theme_bw() +
         panel.spacing = unit(1.2, "lines"))
 
 # Read in data
-results <- fread("sim_data/fig11_perm_test.csv")
+results <- fread("sim_data/fig12_perm_test.csv")
 
 # Get rejection proportion at each (d, mu_norm) combination
 reject_df <- results %>% 
@@ -66,5 +66,5 @@ perm_test_reject_B_vary <- reject_df %>%
 #####################
 
 ggsave(plot = perm_test_reject_B_vary,
-       filename = "sim_plots/figure_11.pdf",
+       filename = "sim_plots/figure_12.pdf",
        width = 8, height = 7)
