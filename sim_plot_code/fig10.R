@@ -1,4 +1,4 @@
-# Create Figure 8 in appendix.
+# Create Figure 10 in appendix.
 # Plot log-concave MLE densities for normal mixtures at n = 500 and d = 2.
 
 suppressMessages(library(data.table))
@@ -16,7 +16,7 @@ paper_theme <- theme_bw() +
         panel.spacing = unit(1.2, "lines"))
 
 # Read in data
-density_values <- fread("sim_data/fig09_densities.csv")
+density_values <- fread("sim_data/fig10_densities.csv")
 
 # Check parameters
 stopifnot(unique(density_values$d) == 2,
@@ -64,5 +64,5 @@ logconc_contours_n500_d2 <- density_values %>%
 #####################
 
 ggsave(plot = logconc_contours_n500_d2,
-       filename = "sim_plots/figure_09.pdf",
+       filename = "sim_plots/figure_10.pdf",
        width = 8.5, height = 5)
