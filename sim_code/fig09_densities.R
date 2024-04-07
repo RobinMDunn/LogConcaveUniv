@@ -120,7 +120,7 @@ for(sim_val in 1:3) {
 }
 
 # Save simulation density_df
-data.table::fwrite(density_df, file = "sim_data/fig08_densities.csv")
+data.table::fwrite(density_df, file = "sim_data/fig09_densities.csv")
 
 # Save simulation points
-data.table::fwrite(density_points, file = "sim_data/fig08_points.csv")
+data.table::fwrite(density_points, file = "sim_data/fig09_points.csv")
