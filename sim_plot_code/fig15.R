@@ -30,7 +30,9 @@ test_stats <- rbind(test_stats_d1_proj, test_stats_d2, fill = TRUE)
 d1_d2_test_stats <- ggplot(test_stats, aes(x = log(test_stat))) +
   geom_histogram(bins = 60, fill = "lightblue", col = "black") +
   facet_grid(test_dim ~ .) +
-  geom_vline(aes(xintercept = log(10)), lty = "dashed") +
+  geom_vline(aes(xintercept = log(10)), lty = "dashed", col = "blue") +
+  annotate(geom = "text", x = log(10) + 8, y = 162, 
+           label = "log(1/0.1)", col = "blue", size = 6) +
   paper_theme +
   labs(x = "Log of test statistic",
        y = "Count",
