@@ -15,7 +15,7 @@ library(LogConcaveUniv)
 # line number for parameters for current simulation, and
 # number of parallel cores to use in simulation.
 
-parameter_file <- "sim_params/new_example/fully_NP_randproj_params.csv"
+parameter_file <- "sim_params/fig06_fully_NP_randproj_params.csv"
 line_number <- 1
 n_cores <- 1
 
@@ -108,5 +108,5 @@ results_agg <- results %>%
 
 # Save simulation results
 data.table::fwrite(results_agg, 
-                   file = paste0("sim_data/new_example/fully_NP_randproj_",
+                   file = paste0("sim_data/fig06_fully_NP_randproj_",
                                  line_number, ".csv"))

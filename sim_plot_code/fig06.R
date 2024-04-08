@@ -1,4 +1,4 @@
-# Create Figure XX in main paper.
+# Create Figure 6 in main paper.
 # Plot results for tests of
 # H_0: log-concave versus H_1: not log-concave.
 # Density is 0.5*N(0, I_2) + 0.5*N(0, sigma^2 I_2), where sigma = sqrt(3).
@@ -19,16 +19,16 @@ paper_theme <- theme_bw() +
         panel.spacing = unit(1.2, "lines"))
 
 # Read in data
-full_oracle_ddim <- fread("sim_data/new_example/full_oracle_ddim.csv") %>% 
+full_oracle_ddim <- fread("sim_data/fig06_full_oracle_ddim.csv") %>% 
   dplyr::mutate(Method = "Full oracle, d-dim")
 
-partial_oracle_ddim <- fread("sim_data/new_example/partial_oracle_ddim.csv") %>% 
+partial_oracle_ddim <- fread("sim_data/fig06_partial_oracle_ddim.csv") %>% 
   dplyr::mutate(Method = "Partial oracle, d-dim")
 
-partial_oracle_randproj <- fread("sim_data/new_example/partial_oracle_randproj.csv") %>% 
+partial_oracle_randproj <- fread("sim_data/fig06_partial_oracle_randproj.csv") %>% 
   dplyr::mutate(Method = "Partial oracle, random projections")
 
-fully_NP_randproj <- fread("sim_data/new_example/fully_NP_randproj.csv") %>% 
+fully_NP_randproj <- fread("sim_data/fig06_fully_NP_randproj.csv") %>% 
   dplyr::mutate(Method = "Fully nonparametric, random projections")
 
 # Combine results
@@ -91,5 +91,5 @@ reject_props <- reject_df %>%
 ######################
 
 ggsave(plot = reject_props,
-       filename = "sim_plots/new_example_fig06.pdf",
+       filename = "sim_plots/figure_06.pdf",
        width = 7, height = 5)
