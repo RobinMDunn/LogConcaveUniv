@@ -1,5 +1,5 @@
 # Create Figure 12 in appendix.
-# Plot quantiles of permutation test from Cule et al. (2010).
+# Plot results from Cule et al. (2010) permutation test of
 # H_0: log-concave versus H_1: not log-concave.
 # Use two-component normal location model.
 
@@ -18,77 +18,53 @@ paper_theme <- theme_bw() +
         panel.spacing = unit(1.2, "lines"))
 
 # Read in data
-results <- fread("sim_data/fig12_perm_test_stats.csv")
+results <- fread("sim_data/fig12_perm_test.csv")
 
-# Data frame of quantiles and original test stats
-quantile_df <- results %>% 
-  group_by(d, mu_norm, B, orig_test_stat) %>% 
-  dplyr::summarise(q90 = quantile(shuffle_test_stat, 0.90),
-                   q95 = quantile(shuffle_test_stat, 0.95),
-                   q99 = quantile(shuffle_test_stat, 0.99),
-                   sim_count = n()) %>% 
-  mutate(details = 
-           factor(paste(d, mu_norm, B),
-                  levels = c("1 0 100", "5 0 100", "1 2 100", "5 2 100",
-                             "1 0 500", "5 0 500", "1 2 500", "5 2 500"),
-                  labels = c("d==1 ~~~~ ll*mu*ll==0 ~~~~ B==100", 
-                             "d==5 ~~~~ ll*mu*ll==0 ~~~~ B==100",
-                             "d==1 ~~~~ ll*mu*ll==2 ~~~~ B==100", 
-                             "d==5 ~~~~ ll*mu*ll==2 ~~~~ B==100",
-                             "d==1 ~~~~ ll*mu*ll==0 ~~~~ B==500", 
-                             "d==5 ~~~~ ll*mu*ll==0 ~~~~ B==500",
-                             "d==1 ~~~~ ll*mu*ll==2 ~~~~ B==500",
-                             "d==5 ~~~~ ll*mu*ll==2 ~~~~ B==500")))
+# Get rejection proportion at each (d, mu_norm) combination
+reject_df <- results %>% 
+  group_by(n_obs, d, mu_norm, B) %>% 
+  dplyr::summarise(reject_prop = mean(reject),
+                   sim_count = n())
 
 # Check parameters
-stopifnot(quantile_df$B == quantile_df$sim_count)
+stopifnot(unique(results$equal_space_mu) == 0,
+          unique(results$n_obs) == 100,
+          sort(unique(results$mu_norm)) == 0:5,
+          unique(reject_df$sim_count) == 200)
 
-# Plot shuffled permutation test statistics, quantiles, and orig test statistics 
-perm_test_quantiles <- results %>% 
-  mutate(details = 
-           factor(paste(d, mu_norm, B),
-                  levels = c("1 0 100", "5 0 100", "1 2 100", "5 2 100",
-                             "1 0 500", "5 0 500", "1 2 500", "5 2 500"),
-                  labels = c("d==1 ~~~~ ll*mu*ll==0 ~~~~ B==100", 
-                             "d==5 ~~~~ ll*mu*ll==0 ~~~~ B==100",
-                             "d==1 ~~~~ ll*mu*ll==2 ~~~~ B==100", 
-                             "d==5 ~~~~ ll*mu*ll==2 ~~~~ B==100",
-                             "d==1 ~~~~ ll*mu*ll==0 ~~~~ B==500", 
-                             "d==5 ~~~~ ll*mu*ll==0 ~~~~ B==500",
-                             "d==1 ~~~~ ll*mu*ll==2 ~~~~ B==500",
-                             "d==5 ~~~~ ll*mu*ll==2 ~~~~ B==500"))) %>% 
-  ggplot(aes(x = shuffle_test_stat, y = ..density..)) +
-  geom_histogram(fill = "lightskyblue", bins = 30) +
-  facet_wrap(~ details, nrow = 4, labeller = label_parsed) +
-  geom_vline(aes(xintercept = orig_test_stat), data = quantile_df,
-             col = "black") + 
-  geom_text(aes(x = orig_test_stat - 0.01, y = 15, label = "Test stat"), 
-            data = quantile_df, angle = 90) +
-  geom_vline(aes(xintercept = q90), data = quantile_df, 
-             col = "blue", lty = "dashed", alpha = 0.5) +
-  geom_text(aes(x = q90, y = 20, label = "q['0.90']"), data = quantile_df,
-            parse = T, angle = 0) +
-  geom_vline(aes(xintercept = q95), data = quantile_df, 
-             col = "blue", lty = "dashed", alpha = 0.5) +
-  geom_text(aes(x = q95, y = 13, label = "q[0.95]"), data = quantile_df,
-            parse = T, angle = 0) +
-  geom_vline(aes(xintercept = q99), data = quantile_df, 
-             col = "blue", lty = "dashed", alpha = 0.5) +
-  geom_text(aes(x = q99, y = 6, label = "q[0.99]"), data = quantile_df,
-            parse = T, angle = 0) +
-  labs(x = "Test statistic on shuffled data",
-       y = "Count",
-       title = "Distribution of shuffled data test statistics in eight simulations.",
-       subtitle =  expression(atop("Permutation test for H"[0]*
-                                ": Log-concave vs H"[1]*": Not log-concave.", 
-                                "Normal location family f(x) = 0.5"*phi[d]*"(x)"~
-                                  "+ 0.5"*phi[d]*"(x -"~mu*")."))) +
-  paper_theme
+# Plot rejection proportions at varying numbers of shuffles (B), n = 100.
+perm_test_reject_B_vary <- reject_df %>% 
+  mutate(d = factor(d, levels = 1:5, 
+                    labels = c("d = 1", "d = 2", "d = 3", "d = 4", "d = 5")),
+         log_concave = 
+           factor(mu_norm, levels = 0:5, 
+                  labels = c("Log-concave", "Log-concave", "Log-concave", 
+                             "Not log-concave", "Not log-concave", 
+                             "Not log-concave")),
+         B = factor(B, levels = c(100, 200, 300, 400, 500),
+                    labels = c("B = 100", "B = 200", "B = 300", 
+                               "B = 400", "B = 500"))) %>% 
+  ggplot(aes(x = mu_norm, y = reject_prop, col = log_concave)) +
+  facet_grid(d ~ B) +
+  geom_line(color = "darkgrey") +
+  geom_point() +
+  geom_hline(yintercept = 0.10, lty = "dashed") +
+  labs(x = expression("||"*mu*"|| in normal location family"), 
+       y = "Rejection proportion",
+       col = "",
+       title = expression("Permutation test for H"[0]*
+                            ": Log-concave vs H"[1]*": Not log-concave"),
+       subtitle = expression("Normal location family f(x) = 0.5"*phi[d]*"(x)"~
+                               "+ 0.5"*phi[d]*"(x -"~mu*"). Varying B. n = 100.")) +
+  scale_color_manual(values = c("blue", "red")) +
+  paper_theme +
+  theme(legend.position = "bottom",
+        axis.text = element_text(size = 10))
 
 #####################
 ##### Save plot #####
 #####################
 
-ggsave(plot = perm_test_quantiles,
+ggsave(plot = perm_test_reject_B_vary,
        filename = "sim_plots/figure_12.pdf",
        width = 8, height = 7)

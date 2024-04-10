@@ -1,6 +1,6 @@
 # Get densities to plot appearance of log-concave MLEs from test of
 # H_0: log-concave versus H_1: not log-concave using universal LRT.
-# About 20 seconds to run mlelcd log-concave MLE function on d = 2, n = 500.
+# Less than 1 second to run mlelcd log-concave MLE function on d = 2, n = 50.
 
 # Read in library
 library(LogConcaveUniv)
@@ -14,7 +14,7 @@ density_df <-
                          expand.grid(x = seq(-6, 3, length.out = 201),
                                      y = seq(-6, 3, length.out = 201),
                                      mu_norm = c(0, 2, 4)),
-                         n_obs = 500,
+                         n_obs = 50,
                          true_density = NA_real_,
                          LogConcDEAD_density = NA_real_,
                          logcondens_density = NA_real_,
@@ -23,9 +23,17 @@ density_df <-
                          mean_loglik_logcondens = NA_real_)
 
 # Set simulation numbers for seed values
-density_df[mu_norm == 0 & n_obs == 500 & d == 2, sim := 4]
-density_df[mu_norm == 2 & n_obs == 500 & d == 2, sim := 5]
-density_df[mu_norm == 4 & n_obs == 500 & d == 2, sim := 6]
+density_df[mu_norm == 0 & n_obs == 50 & d == 2, sim := 1]
+density_df[mu_norm == 2 & n_obs == 50 & d == 2, sim := 2]
+density_df[mu_norm == 4 & n_obs == 50 & d == 2, sim := 3]
+
+# Data frame to store simulated points
+density_points <-
+  data.table::data.table(mu_norm = c(rep(c("||u|| = 0", "||u|| = 2",
+                                           "||u|| = 4"), each = 50)),
+                         sim = rep(c(1, 2, 3), each = 50),
+                         x = NA_real_,
+                         y = NA_real_)
 
 # Set up progress bar
 pb <- progress::progress_bar$new(format = "sim :current / :total [:bar] :eta",
@@ -33,7 +41,7 @@ pb <- progress::progress_bar$new(format = "sim :current / :total [:bar] :eta",
                                  clear = T, show_after = 0)
 
 # Run simulations to check whether to reject H_0
-for(sim_val in 4:6) {
+for(sim_val in 1:3) {
 
   # Update progress bar
   pb$tick()
@@ -64,6 +72,10 @@ for(sim_val in 4:6) {
     }
   }
 
+  # Store simulated points
+  density_points[sim == sim_val, x := true_sample[, 1]]
+  density_points[sim == sim_val, y := true_sample[, 2]]
+
   # Get MLE log-concave estimate using LogConcDEAD package
   mle_LogConcDEAD <- LogConcDEAD::mlelcd(x = true_sample)
 
@@ -91,9 +103,9 @@ for(sim_val in 4:6) {
 
   # Get (1/n)*loglik on observed data, true Gaussian mixture density
   mean_loglik_true <-
-    mean(EMCluster::dmixmvn(x = true_sample, pi = c(0.5, 0.5), Mu = true_mu,
-                            LTSigma = EMCluster::variance2LTSigma(true_sigma),
-                            log = TRUE))
+    mean(EMCluster::dmixmvn(
+      x = true_sample, pi = c(0.5, 0.5), Mu = true_mu,
+      LTSigma = EMCluster::variance2LTSigma(true_sigma), log = TRUE))
 
   density_df[sim == sim_val, mean_loglik_true_dens := mean_loglik_true]
 
@@ -103,9 +115,12 @@ for(sim_val in 4:6) {
                            uselog = TRUE))
 
   density_df[sim == sim_val,
-          mean_loglik_LogConcDEAD := mean_loglik_LogConcDEAD_eval]
+             mean_loglik_LogConcDEAD := mean_loglik_LogConcDEAD_eval]
 
 }
 
 # Save simulation density_df
 data.table::fwrite(density_df, file = "sim_data/fig09_densities.csv")
+
+# Save simulation points
+data.table::fwrite(density_points, file = "sim_data/fig09_points.csv")

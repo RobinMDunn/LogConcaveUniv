@@ -1,8 +1,7 @@
 # Create Figure 13 in appendix.
-# Plot results from Gaussian mixture/universal approach and 
-# Cule et al. (2010) permutation test of
+# Plot quantiles of permutation test from Cule et al. (2010).
 # H_0: log-concave versus H_1: not log-concave.
-# Use true density as numerator.
+# Use two-component normal location model.
 
 suppressMessages(library(data.table))
 suppressMessages(library(tidyverse))
@@ -19,56 +18,77 @@ paper_theme <- theme_bw() +
         panel.spacing = unit(1.2, "lines"))
 
 # Read in data
-full_oracle <- fread("sim_data/fig13_full_oracle.csv")
+results <- fread("sim_data/fig13_perm_test_stats.csv")
 
-# Get rejection proportion at each (d, mu_norm) combination
-reject_props <- full_oracle %>% 
-  group_by(n_obs, d, mu_norm, B) %>% 
-  dplyr::summarise(reject_prop = mean(reject),
-                   sim_count = n())
+# Data frame of quantiles and original test stats
+quantile_df <- results %>% 
+  group_by(d, mu_norm, B, orig_test_stat) %>% 
+  dplyr::summarise(q90 = quantile(shuffle_test_stat, 0.90),
+                   q95 = quantile(shuffle_test_stat, 0.95),
+                   q99 = quantile(shuffle_test_stat, 0.99),
+                   sim_count = n()) %>% 
+  mutate(details = 
+           factor(paste(d, mu_norm, B),
+                  levels = c("1 0 100", "5 0 100", "1 2 100", "5 2 100",
+                             "1 0 500", "5 0 500", "1 2 500", "5 2 500"),
+                  labels = c("d==1 ~~~~ ll*mu*ll==0 ~~~~ B==100", 
+                             "d==5 ~~~~ ll*mu*ll==0 ~~~~ B==100",
+                             "d==1 ~~~~ ll*mu*ll==2 ~~~~ B==100", 
+                             "d==5 ~~~~ ll*mu*ll==2 ~~~~ B==100",
+                             "d==1 ~~~~ ll*mu*ll==0 ~~~~ B==500", 
+                             "d==5 ~~~~ ll*mu*ll==0 ~~~~ B==500",
+                             "d==1 ~~~~ ll*mu*ll==2 ~~~~ B==500",
+                             "d==5 ~~~~ ll*mu*ll==2 ~~~~ B==500")))
 
-# Check correct parameters
-stopifnot(unique(full_oracle$B) == 100, 
-          unique(full_oracle$equal_space_mu) == 0,
-          unique(full_oracle$n_obs) == 100,
-          unique(reject_props$sim_count) == 200)
+# Check parameters
+stopifnot(quantile_df$B == quantile_df$sim_count)
 
-######################################################################
-##### Plot mu_norm necessary for power of approx 0.90, varying d #####
-######################################################################
-
-power_pt90_df_vary_d <- reject_props %>% 
-  group_by(d) %>% 
-  filter(abs(reject_prop - 0.90) == min(abs(reject_prop - 0.90))) %>% 
-  slice(1) %>% 
-  ungroup()
-
-power_vary_d <- power_pt90_df_vary_d %>% 
-  mutate(approx_power = cut(reject_prop, 
-                            breaks = c(0.88, 0.89, 0.90, 0.91, 0.92),
-                            include.lowest = TRUE)) %>%
-  mutate(slope = lm(mu_norm ~ I(exp(1)^d))$coefs[2]) %>% 
-  ggplot(aes(x = d, y = mu_norm)) +
-  scale_y_continuous(limits = c(0, 90)) +
-  geom_line(col = "grey") +
-  geom_point(aes(col = approx_power), size = 3) +  
-  scale_color_brewer(palette = "RdBu", drop = FALSE) +
-  stat_smooth(geom = "line", method = "lm", formula = y ~ I(exp(1)^x), 
-              col = "blue", se = F,
-              lty = "dashed", alpha = 0.5, size = 1) +
-  labs(y = expression("||"*mu*"||"),
-       col = "Approx power",
-       title = expression("How does ||"*mu*"|| need to grow with dimension"~
-                            "for power of 0.90?"),
-       subtitle = expression("With best fit"~
-                               hat("||"*mu*"||")~"= a + b*"*exp(d)~"curve."~
-                               "n = 100 obs. 200 sims.")) +
+# Plot shuffled permutation test statistics, quantiles, and orig test statistics 
+perm_test_quantiles <- results %>% 
+  mutate(details = 
+           factor(paste(d, mu_norm, B),
+                  levels = c("1 0 100", "5 0 100", "1 2 100", "5 2 100",
+                             "1 0 500", "5 0 500", "1 2 500", "5 2 500"),
+                  labels = c("d==1 ~~~~ ll*mu*ll==0 ~~~~ B==100", 
+                             "d==5 ~~~~ ll*mu*ll==0 ~~~~ B==100",
+                             "d==1 ~~~~ ll*mu*ll==2 ~~~~ B==100", 
+                             "d==5 ~~~~ ll*mu*ll==2 ~~~~ B==100",
+                             "d==1 ~~~~ ll*mu*ll==0 ~~~~ B==500", 
+                             "d==5 ~~~~ ll*mu*ll==0 ~~~~ B==500",
+                             "d==1 ~~~~ ll*mu*ll==2 ~~~~ B==500",
+                             "d==5 ~~~~ ll*mu*ll==2 ~~~~ B==500"))) %>% 
+  ggplot(aes(x = shuffle_test_stat, y = ..density..)) +
+  geom_histogram(fill = "lightskyblue", bins = 30) +
+  facet_wrap(~ details, nrow = 4, labeller = label_parsed) +
+  geom_vline(aes(xintercept = orig_test_stat), data = quantile_df,
+             col = "black") + 
+  geom_text(aes(x = orig_test_stat - 0.01, y = 15, label = "Test stat"), 
+            data = quantile_df, angle = 90) +
+  geom_vline(aes(xintercept = q90), data = quantile_df, 
+             col = "blue", lty = "dashed", alpha = 0.5) +
+  geom_text(aes(x = q90, y = 20, label = "q['0.90']"), data = quantile_df,
+            parse = T, angle = 0) +
+  geom_vline(aes(xintercept = q95), data = quantile_df, 
+             col = "blue", lty = "dashed", alpha = 0.5) +
+  geom_text(aes(x = q95, y = 13, label = "q[0.95]"), data = quantile_df,
+            parse = T, angle = 0) +
+  geom_vline(aes(xintercept = q99), data = quantile_df, 
+             col = "blue", lty = "dashed", alpha = 0.5) +
+  geom_text(aes(x = q99, y = 6, label = "q[0.99]"), data = quantile_df,
+            parse = T, angle = 0) +
+  labs(x = "Test statistic on shuffled data",
+       y = "Count",
+       title = "Distribution of shuffled data test statistics in eight simulations.",
+       subtitle =  expression(atop("Permutation test for H"[0]*
+                                ": Log-concave vs H"[1]*": Not log-concave.", 
+                                "Normal location family f(x) = 0.5"*phi[d]*"(x)"~
+                                  "+ 0.5"*phi[d]*"(x -"~mu*")."))) +
   paper_theme
 
 #####################
 ##### Save plot #####
 #####################
 
-ggsave(plot = power_vary_d,
+ggsave(plot = perm_test_quantiles,
        filename = "sim_plots/figure_13.pdf",
-       width = 10, height = 4)
+       width = 8, height = 7)

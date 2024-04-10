@@ -1,76 +1,95 @@
-# Create Figure 6 in appendix.
-# Plot log-concave MLE densities for normal mixtures at n = 50 and d = 1.
+# Create Figure 6 in main paper.
+# Plot results for tests of
+# H_0: log-concave versus H_1: not log-concave.
+# Density is 0.5*N(0, I_2) + 0.5*N(0, sigma^2 I_2), where sigma = sqrt(3).
+# Density is not LC, but 1-d projections are LC.
 
-# Read in libraries
 suppressMessages(library(data.table))
 suppressMessages(library(tidyverse))
-suppressMessages(library(tidyr))
 
 # Create theme
 paper_theme <- theme_bw() +
-  theme(plot.title    = element_text(hjust = 0.5, size = 16),
+  theme(plot.title = element_text(hjust = 0.5, size = 16),
         plot.subtitle = element_text(hjust = 0.5, size = 14),
-        legend.title  = element_text(size = 14),
-        axis.title    = element_text(size = 14),
-        legend.text   = element_text(size = 12),
-        axis.text     = element_text(size = 12),
-        strip.text    = element_text(size = 12),
+        legend.title = element_text(size = 14),
+        axis.title = element_text(size = 14),
+        legend.text = element_text(size = 12),
+        axis.text = element_text(size = 12),
+        strip.text = element_text(size = 12),
         panel.spacing = unit(1.2, "lines"))
 
 # Read in data
-density_points <- fread("sim_data/fig06_points.csv")
+full_oracle_ddim <- fread("sim_data/fig06_full_oracle_ddim.csv") %>% 
+  dplyr::mutate(Method = "Full oracle, d-dim")
 
-density_values <- fread("sim_data/fig06_densities.csv")
+partial_oracle_ddim <- fread("sim_data/fig06_partial_oracle_ddim.csv") %>% 
+  dplyr::mutate(Method = "Partial oracle, d-dim")
+
+partial_oracle_randproj <- fread("sim_data/fig06_partial_oracle_randproj.csv") %>% 
+  dplyr::mutate(Method = "Partial oracle, random projections")
+
+fully_NP_randproj <- fread("sim_data/fig06_fully_NP_randproj.csv") %>% 
+  dplyr::mutate(Method = "Fully nonparametric, random projections")
+
+# Combine results
+results <- rbind(full_oracle_ddim, partial_oracle_ddim, 
+                 partial_oracle_randproj, fully_NP_randproj,
+                 fill = TRUE)
+
+# Get rejection proportion at each combination
+reject_df <- results %>% 
+  dplyr::mutate(reject_prop = n_reject / n_sim)
 
 # Check parameters
-stopifnot(unique(density_values$d) == 1,
-          unique(density_values$n_obs) == 50)
+stopifnot(unique(full_oracle_ddim$B) == 100,
+          unique(partial_oracle_ddim$B) == 100,
+          unique(partial_oracle_randproj$B) == 100,
+          unique(fully_NP_randproj$B) == 100,
+          unique(partial_oracle_randproj$n_proj == 100),
+          unique(fully_NP_randproj$n_proj == 100),
+          unique(reject_df$n_sim) == 200)
 
-# Extract (1/n)*loglik values
-loglik_df <- density_values %>%
-  group_by(mu_norm) %>%
-  slice(1) %>%
-  pivot_longer(cols = c("mean_loglik_true_dens",
-                        "mean_loglik_LogConcDEAD",
-                        "mean_loglik_logcondens")) %>%
-  mutate(name = factor(name,
-                       levels = c("mean_loglik_true_dens",
-                                  "mean_loglik_LogConcDEAD",
-                                  "mean_loglik_logcondens"),
-                       labels = c("True density",
-                                  "Log-concave MLE (LogConcDEAD)",
-                                  "Log-concave MLE (logcondens)")),
-         mu_norm = factor(mu_norm, levels = c(0, 2, 4),
-                          labels = c("||u|| = 0", "||u|| = 2", "||u|| = 4")))
+######################
+##### Plot power #####
+######################
 
-# Plot densities
-logconc_densities_n50_d1 <- density_values %>%
-  pivot_longer(cols = c("true_density", "LogConcDEAD_density",
-                        "logcondens_density")) %>%
-  mutate(name = factor(name, levels = c("true_density",
-                                        "LogConcDEAD_density",
-                                        "logcondens_density"),
-                       labels = c("True density",
-                                  "Log-concave MLE (LogConcDEAD)",
-                                  "Log-concave MLE (logcondens)")),
-         mu_norm = factor(mu_norm, levels = c(0, 2, 4),
-                          labels = c("||u|| = 0", "||u|| = 2", "||u|| = 4"))) %>%
-  ggplot(aes(x = x, y = value)) +
-  geom_line() +
-  facet_grid(mu_norm ~ name, scales = "free") +
-  geom_rug(aes(x = x), sides = "b", inherit.aes = F,
-           data = density_points) +
-  geom_text(aes(x = -4.5, y = 0.35,
-                label = paste("\n", "(1/n)*loglik =", round(value, 2))),
-            data = loglik_df %>% filter(d == 1, n_obs == 50)) +
+# Plot rejection proportions (with small amount of jitter)
+set.seed(165)
+
+reject_props <- reject_df %>% 
+  dplyr::mutate(Method = factor(Method,
+                         levels = c("Partial oracle, random projections",
+                                    "Fully nonparametric, random projections",
+                                    "Full oracle, d-dim",
+                                    "Partial oracle, d-dim"),
+                         labels = c("Partial oracle, random projections",
+                                    "Fully nonparametric, random projections",
+                                    "Full oracle, d-dim",
+                                    "Partial oracle, d-dim")),
+                reject_prop_jitter = jitter(reject_prop, amount = 0.005)) %>%
+  ggplot(aes(x = n_obs, y = reject_prop_jitter)) +
+  geom_line(aes(col = Method), alpha = 0.5) +
+  geom_point(aes(col = Method, shape = Method), alpha = 0.9) +
+  geom_hline(yintercept = 0.10, lty = "dashed", col = "darkgrey") +
+  labs(x = "Number of observations", 
+       y = "Rejection proportion",
+       col = "Method",
+       title = expression("Tests for H"[0]*
+                            ": Log-concave vs H"[1]*": Not log-concave"),
+       subtitle = expression("Normal mixture 0.5*(N(0,"~I[2]*") +"*
+                             "N(0,"~sigma**2~I[2]*")), where"~sigma~"="~sqrt(3))) +
+  scale_color_manual(values = c("#0047b3", "#b30000", 
+                                "#5200cc", "#b380ff")) +
   paper_theme +
-  labs(y = "Density",
-       title = "True density and log-concave MLE estimates, n = 50, d = 1")
+  theme(legend.position = "bottom") +
+  guides(colour = guide_legend(nrow = 2)) +
+  scale_x_continuous(breaks = seq(200, 1600, by = 200)) +
+  scale_y_continuous(limits = c(-0.01, 0.2), breaks = seq(0, 0.2, by = 0.02))
+  
+######################
+##### Save plots #####
+######################
 
-#####################
-##### Save plot #####
-#####################
-
-ggsave(plot = logconc_densities_n50_d1,
+ggsave(plot = reject_props,
        filename = "sim_plots/figure_06.pdf",
-       width = 9.7, height = 5)
+       width = 7, height = 5)

@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH -t 00:05:00
+#SBATCH -t 00:01:00
 #SBATCH -p RM-shared
 #SBATCH -N 1
 #SBATCH --ntasks-per-node 1

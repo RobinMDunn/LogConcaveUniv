@@ -4,7 +4,16 @@
 \alias{full_oracle_ddim}
 \title{Full oracle d-dimensional test for log-concavity}
 \usage{
-full_oracle_ddim(data, B, alpha, mu, p, compute_ts)
+full_oracle_ddim(
+  data,
+  B,
+  alpha,
+  mu,
+  sigma = 1,
+  p,
+  compute_ts,
+  normalizing_constant = 1
+)
 }
 \arguments{
 \item{data}{\eqn{n x d} data frame containing iid observations.
@@ -16,16 +25,22 @@ We wish to test whether the underlying density is log-concave.}
 \item{alpha}{Significance level}
 
 \item{mu}{Mean parameter from the underlying distribution
-\eqn{(1-p) N(0, I_d) + p N(-mu, I_d)}}
+\eqn{(1-p) N(0, I_d) + p N(-mu, sigma^2 I_d)}}
+
+\item{sigma}{Standard deviation parameter from the underlying distribution
+\eqn{(1-p) N(0, I_d) + p N(-mu, sigma^2 I_d)}}
 
 \item{p}{Mixing parameter from the underlying distribution
-\eqn{(1-p) N(0, I_d) + p N(-mu, I_d)}}
+\eqn{(1-p) N(0, I_d) + p N(-mu, sigma^2 I_d)}}
 
 \item{compute_ts}{Indicator for whether to compute test statistic.
 Set \code{compute_ts = 0} to stop early if rejection is guaranteed after some
 b < B subsamples.
 Set \code{compute_ts = 1} to perform all B subsamples and compute the
 test statistic.}
+
+\item{normalizing_constant}{1 divided by probability of region of truncation,
+if distribution is truncated.}
 }
 \value{
 List containing \code{test_stat} and \code{reject_null}.
@@ -42,7 +57,7 @@ Run the full oracle d-dimensional test of
 "H_1: true density is not log-concave."
 This function assumes that the underlying distribution is a d-dimensional
 mixture of two Normal distributions with the form
-\eqn{(1-p) N(0, I_d) + p N(-mu, I_d)}. In addition, this approach assumes
+\eqn{(1-p) N(0, I_d) + p N(-mu, sigma^2 I_d)}. In addition, this approach assumes
 that we know
 the true underlying density. (Hence, this is a helpful theoretical
 comparison, but it likely will not be used in practice.)
