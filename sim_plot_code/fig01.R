@@ -57,13 +57,14 @@ perm_randproj_tests <- reject_df %>%
   facet_wrap(. ~ d) +
   geom_hline(yintercept = 0.10, lty = "dashed", col = "darkgrey") +
   geom_vline(xintercept = 2, lty = "dashed", col = "darkgrey") +
-  geom_line(aes(col = Method), alpha = 0.7) +
+  geom_line(aes(col = Method, lty = Method), alpha = 0.7) +
   geom_point(aes(col = Method), alpha = 0.7) +
   annotate(geom = "text", x = 1.5, y = 0.7, label = "LC", angle = 90) +
   annotate(geom = "text", x = 2.5, y = 0.7, label = "Not LC", angle = 90) +
   labs(x = expression("||"*mu*"|| in normal location family"), 
        y = "Rejection proportion",
        col = "",
+       lty = "",
        title = expression("Tests for H"[0]*
                             ": Log-concave vs H"[1]*": Not log-concave"),
        subtitle = expression("Normal location family f(x) = 0.5"*phi[d]*"(x)"~
@@ -71,7 +72,8 @@ perm_randproj_tests <- reject_df %>%
   scale_color_manual(values = c("black", "red")) +
   scale_x_continuous(breaks = seq(0, 10, by = 2)) +
   paper_theme +
-  theme(legend.position = "bottom") 
+  theme(legend.position = "bottom",
+        legend.key.width = unit(2, "line"))
 
 #####################
 ##### Save plot #####
