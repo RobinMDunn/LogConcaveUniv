@@ -68,8 +68,8 @@ reject_props <- reject_df %>%
                                     "Partial oracle, d-dim")),
                 reject_prop_jitter = jitter(reject_prop, amount = 0.005)) %>%
   ggplot(aes(x = n_obs, y = reject_prop_jitter)) +
-  geom_line(aes(col = Method), alpha = 0.7) +
-  geom_point(aes(col = Method), alpha = 0.3) +
+  geom_line(aes(col = Method), alpha = 0.5) +
+  geom_point(aes(col = Method, shape = Method), alpha = 0.9) +
   geom_hline(yintercept = 0.10, lty = "dashed", col = "darkgrey") +
   labs(x = "Number of observations", 
        y = "Rejection proportion",
