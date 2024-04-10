@@ -57,7 +57,7 @@ reject_perm_true_n100 <- reject_df %>%
          d = factor(d, levels = 1:4, 
                     labels = c("d = 1", "d = 2", "d = 3", "d = 4"))) %>%
   ggplot(aes(x = mu_norm, y = reject_prop)) +
-  geom_line(aes(col = Method), alpha = 0.7) +
+  geom_line(aes(col = Method, lty = Method), alpha = 0.7) +
   geom_point(aes(col = Method), alpha = 0.3) +
   geom_hline(yintercept = 0.10, lty = "dashed", col = "darkgrey") +
   geom_vline(xintercept = 2, lty = "dashed", col = "darkgrey") +
@@ -67,6 +67,7 @@ reject_perm_true_n100 <- reject_df %>%
   labs(x = expression("||"*mu*"|| in normal location family"), 
        y = "Rejection proportion",
        col = "Method",
+       lty = "Method",
        shape = "Log-concave?",
        title = expression("Permutation test and true density universal test for H"[0]*
                             ": Log-concave vs H"[1]*": Not log-concave"),
@@ -75,7 +76,8 @@ reject_perm_true_n100 <- reject_df %>%
   scale_shape_manual(values = c(16, 4)) +
   scale_color_manual(values = c("black", "#5200cc")) +
   paper_theme +
-  theme(legend.position = "bottom") +
+  theme(legend.position = "bottom", 
+        legend.key.width = unit(2, "line")) +
   guides(colour = guide_legend(nrow = 1))
 
 #####################
