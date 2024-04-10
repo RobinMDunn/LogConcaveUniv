@@ -40,7 +40,7 @@ This script reproduces the universal test simulations for Figure 1. To do this, 
 
 ### Without a supercomputer
 
-To run the code without using a job submission system, click on any .sh file. The Rscript lines can be run on a terminal, replacing $SLURM_ARRAY_TASK_ID with all of the indices in the batch array. 
+To run the code without using a job submission system, click on any .sh file. The Rscript lines can be run on a terminal, replacing $SLURM_ARRAY_TASK_ID with the individual indices in the batch array. 
 
 ## Reproduce a figure without rerunning the simulations
 
