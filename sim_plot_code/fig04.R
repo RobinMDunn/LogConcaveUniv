@@ -90,7 +90,7 @@ reject_props_unequal_spaced <- reject_df %>%
          d = factor(d, levels = 1:4, 
                     labels = c("d = 1", "d = 2", "d = 3", "d = 4"))) %>%
   ggplot(aes(x = mu_norm, y = reject_prop)) +
-  geom_line(aes(col = Method), alpha = 0.7) +
+  geom_line(aes(col = Method, lty = Method), alpha = 0.7) +
   geom_point(aes(col = Method), alpha = 0.3) +
   geom_hline(yintercept = 0.10, lty = "dashed", col = "darkgrey") +
   geom_vline(xintercept = 2, lty = "dashed", col = "darkgrey") +
@@ -101,16 +101,18 @@ reject_props_unequal_spaced <- reject_df %>%
                         mu=="-(||"*mu*"||, 0, ..., 0)"), 
        y = "Rejection proportion",
        col = "Method",
-       shape = "Log-concave?",
+       lty = "Method",
        title = expression("Tests for H"[0]*
                             ": Log-concave vs H"[1]*": Not log-concave"),
        subtitle = expression("Normal location family f(x) = 0.5"*phi[d]*"(x)"~
                                "+ 0.5"*phi[d]*"(x -"~mu*"). n = 100 obs. 200 sims.")) +
-  scale_shape_manual(values = c(16, 4)) +
   scale_color_manual(values = c("#0047b3", "#66a3ff", "#b30000", "#ff8080", 
                                 "#5200cc", "#b380ff", "black")) +
+  scale_linetype_manual(values = c("solid", "solid", "solid", "solid",
+                                   "longdash", "longdash", "dashed")) +
   paper_theme +
-  theme(legend.position = "bottom") +
+  theme(legend.position = "bottom", 
+        legend.key.width = unit(2.5, "line")) +
   guides(colour = guide_legend(nrow = 2))
 
 # Plot rejection proportions at (||mu||, 0, ..., 0) for single dim approaches,
@@ -134,21 +136,21 @@ reject_props_unequal_zoom_onerow <- reject_df %>%
                     labels = c("d = 1", "d = 2", "d = 3", "d = 4"))) %>%
   ggplot(aes(x = mu_norm, y = reject_prop)) +
   geom_line(aes(col = Method), alpha = 0.7) +
-  geom_point(aes(col = Method), alpha = 0.3) +
+  geom_point(aes(col = Method, shape = Method), alpha = 0.8) +
   geom_hline(yintercept = 0.10, lty = "dashed", col = "darkgrey") +
   facet_grid(. ~ d) +
   labs(x = expression("||"*mu*"|| in normal location family, where"~
                         mu=="-(||"*mu*"||, 0, ..., 0)"), 
        y = "Rejection proportion",
        col = "Method",
-       shape = "Log-concave?",
+       shape = "Method",
        title = NULL,
        subtitle = NULL) +
-  scale_shape_manual(values = c(16, 4)) +
   scale_color_manual(values = c("#0047b3", "#66a3ff", "#b30000", "#ff8080")) +
   paper_theme +
-  theme(legend.position = "none")
-  
+  theme(legend.position = "bottom") +
+  guides(colour = guide_legend(nrow = 2))
+
 ######################
 ##### Save plots #####
 ######################
@@ -159,4 +161,4 @@ ggsave(plot = reject_props_unequal_spaced,
 
 ggsave(plot = reject_props_unequal_zoom_onerow,
        filename = "sim_plots/figure_04b.pdf",
-       width = 12, height = 3)
+       width = 12, height = 3.3)
