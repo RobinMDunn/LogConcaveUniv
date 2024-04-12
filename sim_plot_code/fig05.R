@@ -150,7 +150,7 @@ reject_props_equal_zoom_onerow <- reject_df %>%
        subtitle = NULL) +
   scale_color_manual(values = c("#0047b3", "#66a3ff", "#b30000", "#ff8080")) +
   paper_theme +
-  theme(legend.position = "none") +
+  theme(legend.position = "bottom") +
   guides(colour = guide_legend(nrow = 2))
   
 ######################
